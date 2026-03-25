@@ -5,6 +5,8 @@ import FAQSchema from '../../components/seo/FAQSchema.astro';
 import { supabase } from '../../lib/supabase';
 
 const { slug } = Astro.params;
+const lang = Astro.url.searchParams.get('lang') || 'en';
+const isJa = lang === 'ja';
 
 // Fetch recipe with ingredients
 let recipe: any = null;
@@ -24,8 +26,16 @@ if (!recipe) {
   return Astro.redirect('/404');
 }
 
-// Parse step_images and content steps
-const steps = recipe.content_en?.split('\n').filter((s: string) => s.trim()) || [];
+// Language-aware content
+const title = (isJa && recipe.title_jp) ? recipe.title_jp : recipe.title_en;
+const titleSub = (isJa && recipe.title_jp) ? recipe.title_en : recipe.title_jp;
+const description = (isJa && recipe.description_jp) ? recipe.description_jp : recipe.description_en;
+const contentRaw = (isJa && recipe.content_jp) ? recipe.content_jp : recipe.content_en;
+const metaTitle = (isJa && recipe.meta_title_jp) ? recipe.meta_title_jp : recipe.meta_title_en;
+const metaDesc = (isJa && recipe.meta_description_jp) ? recipe.meta_description_jp : recipe.meta_description_en;
+
+// Parse steps
+const steps = contentRaw?.split('\n').filter((s: string) => s.trim()) || [];
 const stepImages = recipe.step_images || [];
 
 // Difficulty styling
@@ -33,9 +43,10 @@ const diffClass = recipe.difficulty === 'beginner' ? 'tag-difficulty-beginner' :
 ---
 
 <BaseLayout 
-  title={recipe.title_en} 
-  description={recipe.meta_description_en || recipe.description_en || ''}
+  title={title} 
+  description={metaDesc || description || ''}
   ogImage={recipe.hero_image_url}
+  lang={lang}
 >
   <!-- Recipe Schema -->
   <RecipeSchema
@@ -63,9 +74,9 @@ const diffClass = recipe.difficulty === 'beginner' ? 'tag-difficulty-beginner' :
         
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-sm text-[var(--color-text-light)] mb-6">
-          <a href="/" class="hover:text-[var(--color-terracotta)]">Home</a>
+          <a href="/" class="hover:text-[var(--color-terracotta)]">{isJa ? 'ホーム' : 'Home'}</a>
           <span>/</span>
-          <a href="/recipes" class="hover:text-[var(--color-terracotta)]">Recipes</a>
+          <a href="/recipes" class="hover:text-[var(--color-terracotta)]">{isJa ? 'レシピ' : 'Recipes'}</a>
           {recipe.category && (
             <>
               <span>/</span>
@@ -78,15 +89,15 @@ const diffClass = recipe.difficulty === 'beginner' ? 'tag-difficulty-beginner' :
 
         <!-- Title -->
         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] leading-tight">
-          {recipe.title_en}
+          {title}
         </h1>
         
-        {recipe.title_jp && (
-          <p class="text-lg text-[var(--color-text-muted)] text-jp mt-2">{recipe.title_jp}</p>
+        {titleSub && (
+          <p class:list={["text-lg text-[var(--color-text-muted)] mt-2", isJa ? '' : 'text-jp']}>{titleSub}</p>
         )}
 
-        {recipe.description_en && (
-          <p class="text-lg text-[var(--color-text-muted)] mt-4 leading-relaxed">{recipe.description_en}</p>
+        {description && (
+          <p class="text-lg text-[var(--color-text-muted)] mt-4 leading-relaxed">{description}</p>
         )}
 
         <!-- Meta Bar -->
@@ -146,7 +157,7 @@ const diffClass = recipe.difficulty === 'beginner' ? 'tag-difficulty-beginner' :
           <aside class="lg:sticky lg:top-28 lg:self-start">
             <div class="bg-[var(--color-sand)]/40 rounded-2xl p-6 border border-[var(--color-border-light)]">
               <h2 class="text-xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-4">
-                Ingredients
+                {isJa ? '材料' : 'Ingredients'}
               </h2>
               
               <ul class="space-y-3">
@@ -157,14 +168,14 @@ const diffClass = recipe.difficulty === 'beginner' ? 'tag-difficulty-beginner' :
                       {item.amount && <strong class="font-medium">{item.amount} {item.unit}</strong>}
                       {' '}
                       {item.ingredient?.slug ? (
-                        <a href={`/ingredients/${item.ingredient.slug}`} class="text-[var(--color-terracotta)] hover:underline">
-                          {item.ingredient.name_en}
+                        <a href={`/ingredients/${item.ingredient.slug}${isJa ? '?lang=ja' : ''}`} class="text-[var(--color-terracotta)] hover:underline">
+                          {isJa && item.ingredient?.name_jp ? item.ingredient.name_jp : item.ingredient.name_en}
                         </a>
                       ) : (
-                        item.ingredient?.name_en
+                        isJa && item.ingredient?.name_jp ? item.ingredient.name_jp : item.ingredient?.name_en
                       )}
                       {item.notes && <span class="text-[var(--color-text-light)]"> ({item.notes})</span>}
-                      {item.is_optional && <span class="text-xs text-[var(--color-text-light)] italic"> - optional</span>}
+                      {item.is_optional && <span class="text-xs text-[var(--color-text-light)] italic"> {isJa ? '- 任意' : '- optional'}</span>}
                     </span>
                   </li>
                 ))}
@@ -174,8 +185,8 @@ const diffClass = recipe.difficulty === 'beginner' ? 'tag-difficulty-beginner' :
             <!-- Nutrition Facts -->
             {(recipe.calories || recipe.protein) && (
               <div class="mt-4 bg-white rounded-2xl p-6 border border-[var(--color-border-light)]">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink)] mb-3">Nutrition Facts</h3>
-                <p class="text-xs text-[var(--color-text-light)] mb-3">Per serving</p>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink)] mb-3">{isJa ? '栄養成分' : 'Nutrition Facts'}</h3>
+                <p class="text-xs text-[var(--color-text-light)] mb-3">{isJa ? '1人分' : 'Per serving'}</p>
                 <div class="space-y-2">
                   {recipe.calories && (
                     <div class="flex justify-between text-sm border-b border-[var(--color-border-light)] pb-2">
@@ -209,7 +220,7 @@ const diffClass = recipe.difficulty === 'beginner' ? 'tag-difficulty-beginner' :
           <!-- Instructions -->
           <div>
             <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-6">
-              Instructions
+              {isJa ? '作り方' : 'Instructions'}
             </h2>
             
             <ol class="space-y-8">
