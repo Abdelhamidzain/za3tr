@@ -1,10 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-// Supabase client
-const supabaseUrl = 'https://doswprgdalotithjdjkc.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvc3dwcmdkYWxvdGl0aGpkamtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjA4NjUsImV4cCI6MjA5MDAzNjg2NX0.dS1MZ_YV7Yi5JpQ67pIRgYDGXTESBxT1_Js3BMx7C8Y';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase, supabaseUrl, inputStyle, textareaStyle, btnPrimary, btnSecondary, labelStyle, cardStyle } from './adminUtils';
+import RecipeEditor from './RecipeEditor';
 
 // =============================================
 // LOGIN COMPONENT
@@ -110,13 +106,13 @@ function Sidebar({ currentPage, onNavigate, onLogout }) {
           <button key={item.id} onClick={() => onNavigate(item.id)}
             style={{
               display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '10px 20px',
-              background: currentPage === item.id ? 'rgba(184,92,56,0.15)' : 'transparent',
-              border: 'none', color: currentPage === item.id ? '#F0997B' : '#aaa',
-              borderLeft: currentPage === item.id ? '3px solid #B85C38' : '3px solid transparent',
+              background: (currentPage === item.id || (item.id === 'recipes' && currentPage.startsWith('recipe-'))) ? 'rgba(184,92,56,0.15)' : 'transparent',
+              border: 'none', color: (currentPage === item.id || (item.id === 'recipes' && currentPage.startsWith('recipe-'))) ? '#F0997B' : '#aaa',
+              borderLeft: (currentPage === item.id || (item.id === 'recipes' && currentPage.startsWith('recipe-'))) ? '3px solid #B85C38' : '3px solid transparent',
               cursor: 'pointer', fontSize: 14, textAlign: 'left', transition: 'all 0.15s',
             }}>
             <span style={{ fontSize: 16 }}>{item.icon}</span>
-            <span style={{ fontWeight: currentPage === item.id ? 600 : 400 }}>{item.label}</span>
+            <span style={{ fontWeight: (currentPage === item.id || (item.id === 'recipes' && currentPage.startsWith('recipe-'))) ? 600 : 400 }}>{item.label}</span>
           </button>
         ))}
       </nav>
@@ -277,6 +273,7 @@ function RecipesPage({ onNavigate }) {
                   <td style={{ padding: '12px 16px', fontSize: 13, color: '#666' }}>{r.pageviews || 0}</td>
                   <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                      <button onClick={() => onNavigate('recipe-edit:' + r.id)} style={{ padding: '4px 10px', fontSize: 12, background: '#F5E6D3', color: '#A87B52', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Edit</button>
                       {r.status === 'draft' && <button onClick={() => updateStatus(r.id, 'review')} style={{ padding: '4px 10px', fontSize: 12, background: '#FFF3E0', color: '#E65100', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Review</button>}
                       {r.status === 'review' && <button onClick={() => updateStatus(r.id, 'published')} style={{ padding: '4px 10px', fontSize: 12, background: '#E8F5E9', color: '#2E7D32', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Publish</button>}
                       {r.status === 'published' && <a href={`/recipes/${r.slug}`} target="_blank" style={{ padding: '4px 10px', fontSize: 12, background: '#E3F2FD', color: '#1565C0', borderRadius: 4, textDecoration: 'none' }}>View</a>}
@@ -389,11 +386,11 @@ function IngredientsPage() {
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name_en: '', name_jp: '', slug: '', category: '', description_en: '' });
+  const [editId, setEditId] = useState(null);
+  const [form, setForm] = useState({ name_en: '', name_jp: '', slug: '', category: '', description_en: '', description_jp: '', image_url: '', substitutes: [], where_to_buy: '' });
+  const [subInput, setSubInput] = useState('');
 
-  useEffect(() => {
-    loadIngredients();
-  }, []);
+  useEffect(() => { loadIngredients(); }, []);
 
   const loadIngredients = async () => {
     const { data } = await supabase.from('ingredients').select('*').order('name_en');
@@ -401,58 +398,168 @@ function IngredientsPage() {
     setLoading(false);
   };
 
+  const openEdit = (ing) => {
+    setForm({
+      name_en: ing.name_en || '', name_jp: ing.name_jp || '', slug: ing.slug || '',
+      category: ing.category || '', description_en: ing.description_en || '',
+      description_jp: ing.description_jp || '', image_url: ing.image_url || '',
+      substitutes: ing.substitutes || [], where_to_buy: ing.where_to_buy || '',
+    });
+    setEditId(ing.id);
+    setShowForm(true);
+  };
+
+  const resetForm = () => {
+    setForm({ name_en: '', name_jp: '', slug: '', category: '', description_en: '', description_jp: '', image_url: '', substitutes: [], where_to_buy: '' });
+    setEditId(null);
+    setShowForm(false);
+  };
+
   const saveIngredient = async (e) => {
     e.preventDefault();
     const slug = form.slug || form.name_en.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    await supabase.from('ingredients').insert({ ...form, slug });
-    setShowForm(false);
-    setForm({ name_en: '', name_jp: '', slug: '', category: '', description_en: '' });
+    const toSave = { ...form, slug };
+
+    if (editId) {
+      await supabase.from('ingredients').update(toSave).eq('id', editId);
+    } else {
+      await supabase.from('ingredients').insert(toSave);
+    }
+    resetForm();
     loadIngredients();
   };
 
   const deleteIngredient = async (id) => {
     if (!confirm('Delete this ingredient?')) return;
+    await supabase.from('recipe_ingredients').delete().eq('ingredient_id', id);
     await supabase.from('ingredients').delete().eq('id', id);
     loadIngredients();
+  };
+
+  const addSubstitute = () => {
+    if (!subInput.trim()) return;
+    setForm({ ...form, substitutes: [...form.substitutes, subInput.trim()] });
+    setSubInput('');
   };
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700 }}>Ingredients ({ingredients.length})</h1>
-        <button onClick={() => setShowForm(!showForm)}
+        <button onClick={() => { resetForm(); setShowForm(!showForm); }}
           style={{ padding: '10px 20px', background: '#4A7C59', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
           {showForm ? 'Cancel' : '+ Add Ingredient'}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={saveIngredient} style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #f0f0f0', marginBottom: 20 }}>
+        <form onSubmit={saveIngredient} style={{ background: 'white', borderRadius: 12, padding: 24, border: '1px solid #f0f0f0', marginBottom: 20 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>{editId ? 'Edit Ingredient' : 'New Ingredient'}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <input value={form.name_en} onChange={e => setForm({ ...form, name_en: e.target.value })} placeholder="English name *" required
-              style={{ padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }} />
-            <input value={form.name_jp} onChange={e => setForm({ ...form, name_jp: e.target.value })} placeholder="Japanese name"
-              style={{ padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }} />
-            <input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} placeholder="Category (sauce, protein, etc.)"
-              style={{ padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }} />
-            <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} placeholder="Slug (auto-generated)"
-              style={{ padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }} />
+            <div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#555', marginBottom: 4 }}>English Name *</label>
+              <input value={form.name_en} onChange={e => setForm({ ...form, name_en: e.target.value })} required
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#555', marginBottom: 4 }}>Japanese Name</label>
+              <input value={form.name_jp} onChange={e => setForm({ ...form, name_jp: e.target.value })}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#555', marginBottom: 4 }}>Category</label>
+              <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }}>
+                <option value="">Select...</option>
+                {['sauce', 'paste', 'broth', 'protein', 'vegetable', 'seaweed', 'dry-goods', 'spice', 'condiment', 'grain', 'noodle', 'other'].map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#555', marginBottom: 4 }}>Slug</label>
+              <input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })}
+                placeholder="auto-generated" style={{ width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }} />
+            </div>
           </div>
-          <textarea value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })} placeholder="Description"
-            style={{ width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14, marginTop: 12, minHeight: 80, resize: 'vertical' }} />
-          <button type="submit" style={{ marginTop: 12, padding: '10px 24px', background: '#4A7C59', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Save Ingredient</button>
+
+          {/* Image */}
+          <div style={{ marginTop: 16, display: 'flex', gap: 16, alignItems: 'start' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#555', marginBottom: 4 }}>Image URL</label>
+              <input value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })}
+                placeholder="https://..." style={{ width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }} />
+            </div>
+            {form.image_url && (
+              <img src={form.image_url} alt="" style={{ width: 80, height: 80, borderRadius: 8, objectFit: 'cover' }} />
+            )}
+          </div>
+
+          <div style={{ marginTop: 12 }}>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#555', marginBottom: 4 }}>Description (EN)</label>
+            <textarea value={form.description_en} onChange={e => setForm({ ...form, description_en: e.target.value })}
+              style={{ width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14, minHeight: 80, resize: 'vertical' }} />
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#555', marginBottom: 4 }}>Description (JP)</label>
+            <textarea value={form.description_jp} onChange={e => setForm({ ...form, description_jp: e.target.value })}
+              style={{ width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14, minHeight: 60, resize: 'vertical' }} />
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#555', marginBottom: 4 }}>Where to Buy</label>
+            <input value={form.where_to_buy} onChange={e => setForm({ ...form, where_to_buy: e.target.value })}
+              placeholder="Asian grocery stores, Amazon..." style={{ width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }} />
+          </div>
+
+          {/* Substitutes */}
+          <div style={{ marginTop: 12 }}>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#555', marginBottom: 4 }}>Substitutes</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input value={subInput} onChange={e => setSubInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSubstitute())}
+                placeholder="Add substitute..." style={{ flex: 1, padding: '10px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 14 }} />
+              <button type="button" onClick={addSubstitute} style={{ padding: '8px 16px', background: '#f0f0f0', border: 'none', borderRadius: 8, cursor: 'pointer' }}>+</button>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+              {form.substitutes.map((s, i) => (
+                <span key={i} style={{ fontSize: 12, padding: '4px 10px', background: '#E8F5E9', color: '#2E7D32', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {s}
+                  <button type="button" onClick={() => setForm({ ...form, substitutes: form.substitutes.filter((_, j) => j !== i) })}
+                    style={{ background: 'none', border: 'none', color: '#2E7D32', cursor: 'pointer', padding: 0, fontSize: 14 }}>×</button>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+            <button type="submit" style={{ padding: '10px 24px', background: '#4A7C59', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+              {editId ? 'Update' : 'Save'} Ingredient
+            </button>
+            {editId && <button type="button" onClick={resetForm} style={{ padding: '10px 24px', background: '#f0f0f0', color: '#555', border: 'none', borderRadius: 8, fontSize: 14, cursor: 'pointer' }}>Cancel</button>}
+          </div>
         </form>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
         {ingredients.map(ing => (
-          <div key={ing.id} style={{ background: 'white', borderRadius: 10, padding: 16, border: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 600 }}>{ing.name_en}</p>
-              {ing.name_jp && <p style={{ fontSize: 12, color: '#888' }}>{ing.name_jp}</p>}
-              {ing.category && <span style={{ fontSize: 11, background: '#F5E6D3', color: '#A87B52', padding: '2px 8px', borderRadius: 4, marginTop: 4, display: 'inline-block' }}>{ing.category}</span>}
+          <div key={ing.id} style={{ background: 'white', borderRadius: 10, padding: 16, border: '1px solid #f0f0f0' }}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'start' }}>
+              {ing.image_url ? (
+                <img src={ing.image_url} alt={ing.name_en} style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+              ) : (
+                <div style={{ width: 56, height: 56, borderRadius: 8, background: '#F5E6D3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>🥢</div>
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 14, fontWeight: 600 }}>{ing.name_en}</p>
+                {ing.name_jp && <p style={{ fontSize: 12, color: '#888' }}>{ing.name_jp}</p>}
+                {ing.category && <span style={{ fontSize: 11, background: '#F5E6D3', color: '#A87B52', padding: '2px 8px', borderRadius: 4, marginTop: 4, display: 'inline-block' }}>{ing.category}</span>}
+              </div>
             </div>
-            <button onClick={() => deleteIngredient(ing.id)} style={{ background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', fontSize: 16 }}>×</button>
+            <div style={{ display: 'flex', gap: 6, marginTop: 10, borderTop: '1px solid #f5f5f5', paddingTop: 10 }}>
+              <button onClick={() => openEdit(ing)} style={{ padding: '4px 12px', fontSize: 12, background: '#F5E6D3', color: '#A87B52', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Edit</button>
+              <a href={`/ingredients/${ing.slug}`} target="_blank" style={{ padding: '4px 12px', fontSize: 12, background: '#E3F2FD', color: '#1565C0', borderRadius: 4, textDecoration: 'none' }}>View</a>
+              <button onClick={() => deleteIngredient(ing.id)} style={{ padding: '4px 12px', fontSize: 12, background: '#FFEBEE', color: '#C62828', border: 'none', borderRadius: 4, cursor: 'pointer', marginLeft: 'auto' }}>Delete</button>
+            </div>
           </div>
         ))}
       </div>
@@ -727,6 +834,15 @@ export default function AdminApp() {
   if (!user) return <LoginPage onLogin={setUser} />;
 
   const renderPage = () => {
+    // Handle recipe editor routes
+    if (currentPage === 'recipe-new') {
+      return <RecipeEditor onBack={() => setCurrentPage('recipes')} />;
+    }
+    if (currentPage.startsWith('recipe-edit:')) {
+      const id = currentPage.split(':')[1];
+      return <RecipeEditor recipeId={id} onBack={() => setCurrentPage('recipes')} />;
+    }
+
     switch (currentPage) {
       case 'dashboard': return <DashboardPage />;
       case 'recipes': return <RecipesPage onNavigate={setCurrentPage} />;
