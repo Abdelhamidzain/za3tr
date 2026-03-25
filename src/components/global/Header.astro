@@ -44,6 +44,9 @@ const currentPath = Astro.url.pathname;
       <a href="/culture" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath.startsWith('/culture') ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
         Culture
       </a>
+      <a href="/about" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath === '/about' ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
+        About
+      </a>
     </nav>
 
     <!-- Search + Language -->

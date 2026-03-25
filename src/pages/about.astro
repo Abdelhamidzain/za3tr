@@ -1,0 +1,222 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const STORAGE = 'https://doswprgdalotithjdjkc.supabase.co/storage/v1/object/public/images/persona';
+---
+
+<BaseLayout 
+  title="About Za3tr — Meet Akemi Hayashi"
+  description="Meet Akemi Hayashi, the Japanese-American chef behind Za3tr. Born in Yokohama, raised between Tokyo and San Francisco, she's on a mission to make authentic Japanese cooking accessible to everyone."
+>
+  <article class="py-8 md:py-16">
+    <div class="container">
+      <div class="content-width">
+
+        <!-- Hero Section -->
+        <div class="relative rounded-3xl overflow-hidden mb-12">
+          <img src={`${STORAGE}/hero.webp`} alt="Akemi Hayashi in her kitchen with Japanese dishes" 
+               class="w-full h-[400px] md:h-[500px] object-cover" loading="eager" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          <div class="absolute bottom-8 left-8 right-8 text-white">
+            <p class="text-sm uppercase tracking-widest opacity-80 mb-2">About Za3tr</p>
+            <h1 class="text-3xl md:text-5xl font-bold font-[family-name:var(--font-display)] leading-tight">
+              Hi, I'm Akemi.
+            </h1>
+            <p class="text-lg md:text-xl opacity-90 mt-2">はじめまして！明美です。</p>
+          </div>
+        </div>
+
+        <!-- Welcome / Intro -->
+        <div class="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8 md:gap-12 mb-16">
+          <div>
+            <img src={`${STORAGE}/portrait.webp`} alt="Akemi Hayashi portrait" 
+                 class="w-full rounded-2xl shadow-sm" loading="eager" />
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-4">
+              Welcome to Za3tr — My Japanese Kitchen
+            </h2>
+            <p class="text-[var(--color-text)] leading-relaxed mb-4">
+              I'm <strong>Akemi Hayashi</strong> (林 明美), a Japanese-American home chef, recipe creator, and the founder of Za3tr. I was born in Yokohama, Japan, and grew up splitting my childhood between my grandmother's traditional kitchen in Tokyo and my parents' home in San Francisco.
+            </p>
+            <p class="text-[var(--color-text)] leading-relaxed mb-4">
+              That in-between life — one foot in Japan, one in America — shaped everything about how I cook. I learned to make dashi from kombu and katsuobushi at my grandmother's side before I was ten. By twelve, I was her sous chef for New Year's osechi preparation, a week-long ritual that felt like magic.
+            </p>
+            <p class="text-[var(--color-text)] leading-relaxed">
+              But I also grew up watching my American friends struggle to find good Japanese recipes in English. Too many recipes online were either oversimplified ("just add soy sauce!") or intimidatingly complex. I started Za3tr to bridge that gap — to share the real techniques behind Japanese home cooking in a way that anyone, anywhere can follow.
+            </p>
+          </div>
+        </div>
+
+        <!-- Mission Section -->
+        <div class="bg-[var(--color-sand)]/30 rounded-2xl p-8 md:p-12 mb-16 border border-[var(--color-border-light)]">
+          <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-6 text-center">
+            Why Za3tr Exists
+          </h2>
+          <div class="max-w-2xl mx-auto">
+            <p class="text-lg text-[var(--color-text)] leading-relaxed mb-4 text-center italic">
+              "Japanese food isn't just about recipes — it's about understanding the 'why' behind every technique. When you know why you rest the dashi, why the knife angle matters, why we season in stages, the dish transforms from a recipe into something you truly own."
+            </p>
+            <p class="text-[var(--color-text)] leading-relaxed mb-4">
+              Every recipe on Za3tr is built on three promises:
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+              <div class="text-center">
+                <div class="w-14 h-14 rounded-full bg-[var(--color-terracotta)]/10 flex items-center justify-center mx-auto mb-3">
+                  <span class="text-2xl">🎯</span>
+                </div>
+                <h3 class="font-bold text-[var(--color-ink)] mb-1">Authentic</h3>
+                <p class="text-sm text-[var(--color-text-muted)]">Real Japanese techniques, not shortcuts. I research the regional origins and traditional methods behind every dish.</p>
+              </div>
+              <div class="text-center">
+                <div class="w-14 h-14 rounded-full bg-[var(--color-terracotta)]/10 flex items-center justify-center mx-auto mb-3">
+                  <span class="text-2xl">📖</span>
+                </div>
+                <h3 class="font-bold text-[var(--color-ink)] mb-1">Detailed</h3>
+                <p class="text-sm text-[var(--color-text-muted)]">Step-by-step with exact temperatures, times, and visual cues. I tell you what to look for, not just what to do.</p>
+              </div>
+              <div class="text-center">
+                <div class="w-14 h-14 rounded-full bg-[var(--color-terracotta)]/10 flex items-center justify-center mx-auto mb-3">
+                  <span class="text-2xl">🌏</span>
+                </div>
+                <h3 class="font-bold text-[var(--color-ink)] mb-1">Accessible</h3>
+                <p class="text-sm text-[var(--color-text-muted)]">Every recipe includes ingredient substitutions for when you can't find dashi kombu at your local store. No gatekeeping.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- My Story -->
+        <div class="mb-16">
+          <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-6">
+            My Story
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 mb-8">
+            <div>
+              <h3 class="text-lg font-bold text-[var(--color-ink)] mb-3">Growing Up Between Two Worlds</h3>
+              <p class="text-[var(--color-text)] leading-relaxed mb-4">
+                I was born in Yokohama (横浜) in 1984. My father is Japanese and my mother is Japanese-American — she grew up in the Bay Area but moved to Japan in her twenties. We lived in Yokohama until I was seven, then moved to San Francisco, but every summer we'd return to Japan to stay with my grandmother in the Setagaya neighborhood of Tokyo.
+              </p>
+              <p class="text-[var(--color-text)] leading-relaxed mb-4">
+                Those summers shaped my entire relationship with food. My grandmother, who everyone called Obāchan (おばあちゃん), ran a small <em>shokudō</em> (食堂) — a casual Japanese eatery — for thirty years before retiring. Her kitchen was my classroom. She taught me that the secret to great Japanese food isn't fancy ingredients or complicated techniques — it's patience, attention, and respect for the ingredients.
+              </p>
+              <p class="text-[var(--color-text)] leading-relaxed">
+                "味は手間から生まれる" (Aji wa tema kara umareru) — <em>Flavor is born from effort</em> — she used to say. That philosophy is the foundation of every recipe on this site.
+              </p>
+            </div>
+            <div>
+              <img src={`${STORAGE}/market.webp`} alt="Akemi at a Japanese food market" 
+                   class="w-full rounded-2xl shadow-sm" />
+              <p class="text-xs text-[var(--color-text-light)] mt-2 text-center">Exploring Tsukiji Outer Market in Tokyo</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8 mb-8">
+            <div>
+              <img src={`${STORAGE}/cooking.webp`} alt="Akemi cooking in her kitchen" 
+                   class="w-full rounded-2xl shadow-sm" />
+              <p class="text-xs text-[var(--color-text-light)] mt-2 text-center">Testing a new ramen recipe at home</p>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-[var(--color-ink)] mb-3">From Home Cook to Recipe Creator</h3>
+              <p class="text-[var(--color-text)] leading-relaxed mb-4">
+                After studying Culinary Arts in San Francisco and working in Japanese restaurants for several years, I realized something: the most impactful Japanese cooking doesn't happen in restaurants. It happens at home — a mother making tamagoyaki for her child's bento, a father simmering nikujaga on a cold evening, a grandmother teaching her grandchild to fold gyoza.
+              </p>
+              <p class="text-[var(--color-text)] leading-relaxed mb-4">
+                I started Za3tr because I wanted to bring that warmth — that <em>okaasan no aji</em> (お母さんの味), "mom's flavor" — to kitchens around the world. Not restaurant-perfect plating, but real, soulful Japanese home cooking that makes you feel like family.
+              </p>
+              <p class="text-[var(--color-text)] leading-relaxed">
+                Every recipe I share has been tested multiple times in my own kitchen. I write the instructions the way I wish someone had written them for me when I first tried to recreate my grandmother's dishes from memory — with every detail, every "why," and every possible thing that could go wrong (and how to fix it).
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8">
+            <div>
+              <h3 class="text-lg font-bold text-[var(--color-ink)] mb-3">What Makes Za3tr Different</h3>
+              <p class="text-[var(--color-text)] leading-relaxed mb-4">
+                I'm not just sharing recipes — I'm sharing a way of thinking about food. Every recipe on Za3tr includes the cultural context: where the dish comes from, how Japanese families actually eat it, and the regional variations you might encounter. I include both English and Japanese (日本語) for every recipe title and key terms, because I believe understanding the original language deepens your connection to the cuisine.
+              </p>
+              <p class="text-[var(--color-text)] leading-relaxed mb-4">
+                I also believe in <strong>ichiju sansai</strong> (一汁三菜) — the traditional Japanese meal structure of one soup and three sides. It's not just a meal format; it's a philosophy of balance and harmony. You'll find that thinking woven throughout Za3tr, from our "What to Serve With" suggestions to our meal planning guides.
+              </p>
+              <p class="text-[var(--color-text)] leading-relaxed">
+                Growing up between Japan and America gave me a unique perspective. I understand what it's like to crave tonkotsu ramen at 2 AM in a city where the nearest Japanese grocery store is an hour away. I know which ingredients you can substitute and which ones you absolutely cannot. That's the bridge I'm building with every recipe.
+              </p>
+            </div>
+            <div>
+              <img src={`${STORAGE}/dining.webp`} alt="Akemi enjoying a Japanese meal" 
+                   class="w-full rounded-2xl shadow-sm" />
+              <p class="text-xs text-[var(--color-text-light)] mt-2 text-center">Enjoying a homemade Japanese dinner</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fun Facts -->
+        <div class="bg-white rounded-2xl p-8 md:p-10 mb-16 border border-[var(--color-border-light)]">
+          <h2 class="text-xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-6">
+            A Little More About Me
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 text-[var(--color-text)]">
+            <p>🏠 I live in <strong>San Francisco</strong> with my husband and our Shiba Inu, Mochi</p>
+            <p>🇯🇵 Born in <strong>Yokohama</strong>, spent childhood summers in <strong>Tokyo</strong></p>
+            <p>🍣 My comfort food is my grandmother's <strong>oyakodon</strong></p>
+            <p>🔪 I own <strong>12 Japanese knives</strong> (yes, it's an obsession)</p>
+            <p>📚 I can read recipes in <strong>Japanese, English, and French</strong></p>
+            <p>☕ My morning ritual: <strong>matcha</strong> before anything else</p>
+            <p>✈️ I visit Japan at least <strong>twice a year</strong> for ingredient research</p>
+            <p>🌱 I grow <strong>shiso, myoga, and yuzu</strong> in my backyard garden</p>
+          </div>
+        </div>
+
+        <!-- What You'll Find Here -->
+        <div class="mb-16">
+          <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-6">
+            What You'll Find on Za3tr
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-[var(--color-cream)] rounded-xl p-6 border border-[var(--color-border-light)]">
+              <h3 class="font-bold text-[var(--color-ink)] mb-2">🍜 Authentic Recipes</h3>
+              <p class="text-sm text-[var(--color-text-muted)]">From everyday staples like miso soup and onigiri to special occasion dishes like osechi and sushi. Every recipe includes bilingual titles, complete nutrition, and detailed steps with photos.</p>
+            </div>
+            <div class="bg-[var(--color-cream)] rounded-xl p-6 border border-[var(--color-border-light)]">
+              <h3 class="font-bold text-[var(--color-ink)] mb-2">🥢 Ingredient Guides</h3>
+              <p class="text-sm text-[var(--color-text-muted)]">Comprehensive guides to Japanese pantry essentials — what they are, how to use them, where to buy them, and what to substitute when you can't find them.</p>
+            </div>
+            <div class="bg-[var(--color-cream)] rounded-xl p-6 border border-[var(--color-border-light)]">
+              <h3 class="font-bold text-[var(--color-ink)] mb-2">🔪 Technique Tutorials</h3>
+              <p class="text-sm text-[var(--color-text-muted)]">Japanese cutting techniques, knife skills, and cooking methods explained clearly. Learn the fundamentals that make Japanese cooking click.</p>
+            </div>
+            <div class="bg-[var(--color-cream)] rounded-xl p-6 border border-[var(--color-border-light)]">
+              <h3 class="font-bold text-[var(--color-ink)] mb-2">🏯 Cultural Context</h3>
+              <p class="text-sm text-[var(--color-text-muted)]">The stories, traditions, and seasonal rituals behind Japanese food. Understanding the culture makes the cooking more meaningful.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="text-center bg-[var(--color-sand)]/30 rounded-2xl p-8 md:p-12 border border-[var(--color-border-light)]">
+          <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-4">
+            Ready to Start Cooking?
+          </h2>
+          <p class="text-[var(--color-text-muted)] mb-6 max-w-xl mx-auto">
+            Whether you're making your first bowl of miso soup or perfecting your ramen game, I'm here to guide you every step of the way.
+          </p>
+          <div class="flex flex-wrap gap-4 justify-center">
+            <a href="/recipes" class="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-terracotta)] text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
+              Browse Recipes →
+            </a>
+            <a href="/ingredients" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-[var(--color-ink)] rounded-xl font-semibold border border-[var(--color-border)] hover:bg-[var(--color-sand)] transition-colors">
+              Pantry Essentials
+            </a>
+          </div>
+          <p class="text-sm text-[var(--color-text-light)] mt-6">
+            いただきます！ — Let's cook together.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </article>
+</BaseLayout>
