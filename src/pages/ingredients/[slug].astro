@@ -3,15 +3,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import RecipeCard from '../../components/recipe/RecipeCard.astro';
 import { supabase, getIngredientBySlug } from '../../lib/supabase';
 
-export async function getStaticPaths() {
-  let data: any[] = [];
-  try {
-    const res = await supabase.from('ingredients').select('slug');
-    data = res.data || [];
-  } catch (e) {}
-  return data.map(i => ({ params: { slug: i.slug } }));
-}
-
 const { slug } = Astro.params;
 
 let ingredient: any = null;

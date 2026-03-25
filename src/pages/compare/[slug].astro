@@ -3,15 +3,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import FAQSchema from '../../components/seo/FAQSchema.astro';
 import { supabase } from '../../lib/supabase';
 
-export async function getStaticPaths() {
-  let data: any[] = [];
-  try {
-    const res = await supabase.from('comparison_pages').select('slug').eq('status', 'published');
-    data = res.data || [];
-  } catch (e) {}
-  return data.map(p => ({ params: { slug: p.slug } }));
-}
-
 const { slug } = Astro.params;
 
 let page: any = null;

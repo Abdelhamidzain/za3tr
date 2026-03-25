@@ -2,15 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { supabase } from '../../lib/supabase';
 
-export async function getStaticPaths() {
-  let data: any[] = [];
-  try {
-    const res = await supabase.from('cultural_wiki').select('slug').eq('status', 'published');
-    data = res.data || [];
-  } catch (e) {}
-  return data.map(a => ({ params: { slug: a.slug } }));
-}
-
 const { slug } = Astro.params;
 let article: any = null;
 try {

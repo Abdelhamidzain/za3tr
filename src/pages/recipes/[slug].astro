@@ -2,15 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import RecipeSchema from '../../components/seo/RecipeSchema.astro';
 import FAQSchema from '../../components/seo/FAQSchema.astro';
-import { supabase, getAllRecipeSlugs } from '../../lib/supabase';
-
-export async function getStaticPaths() {
-  let slugs: string[] = [];
-  try {
-    slugs = await getAllRecipeSlugs();
-  } catch (e) {}
-  return slugs.map(slug => ({ params: { slug } }));
-}
+import { supabase } from '../../lib/supabase';
 
 const { slug } = Astro.params;
 
