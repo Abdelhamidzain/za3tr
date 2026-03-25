@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { supabase } from '../../lib/supabase';
+
+let articles: any[] = [];
+try {
+  const { data } = await supabase.from('cultural_wiki').select('*').eq('status', 'published').order('title_en');
+  articles = data || [];
+} catch (e) {}
+---
+
+<BaseLayout title="Japanese Food Culture" description="Explore the rich traditions, history, and culture behind Japanese cuisine.">
+  <section class="py-12 md:py-16">
+    <div class="container">
+      <div class="mb-10">
+        <p class="text-sm text-[var(--color-clay)] font-medium tracking-widest uppercase mb-2">Discover</p>
+        <h1 class="text-3xl md:text-4xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">Japanese Food Culture</h1>
+        <p class="text-[var(--color-text-muted)] mt-2 max-w-2xl">The stories, traditions, and history behind the food.</p>
+      </div>
+      {articles.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {articles.map(a => (
+            <a href={`/culture/${a.slug}`} class="recipe-card block bg-white rounded-2xl overflow-hidden shadow-[var(--shadow-sm)] border border-[var(--color-border-light)]">
+              {a.image_url && <img src={a.image_url} alt={a.title_en} class="w-full aspect-video object-cover" loading="lazy" />}
+              <div class="p-5">
+                {a.category && <span class="tag bg-[var(--color-sand)] text-[var(--color-clay-dark)] mb-2">{a.category}</span>}
+                <h2 class="text-lg font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">{a.title_en}</h2>
+                {a.title_jp && <p class="text-sm text-[var(--color-text-light)] text-jp mt-0.5">{a.title_jp}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-20 bg-[var(--color-sand)]/30 rounded-2xl border-2 border-dashed border-[var(--color-border)]">
+          <p class="text-5xl mb-4">🏯</p>
+          <h2 class="text-xl font-bold font-[family-name:var(--font-display)]">Culture Articles Coming Soon</h2>
+          <p class="text-[var(--color-text-muted)] mt-2">History of ramen, tea ceremony, seasonal traditions and more.</p>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getAllIngredients } from '../../lib/supabase';
+
+let ingredients: any[] = [];
+try {
+  ingredients = await getAllIngredients() || [];
+} catch (e) {}
+
+// Group by category
+const grouped: Record<string, any[]> = {};
+ingredients.forEach(ing => {
+  const cat = ing.category || 'Other';
+  if (!grouped[cat]) grouped[cat] = [];
+  grouped[cat].push(ing);
+});
+const sortedCategories = Object.keys(grouped).sort();
+---
+
+<BaseLayout title="Japanese Ingredients Guide" description="Your complete guide to Japanese cooking ingredients. Learn about each ingredient, where to buy, and how to substitute.">
+  <section class="py-12 md:py-16">
+    <div class="container">
+      <div class="mb-10">
+        <p class="text-sm text-[var(--color-clay)] font-medium tracking-widest uppercase mb-2">Guide</p>
+        <h1 class="text-3xl md:text-4xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">
+          Japanese Ingredients
+        </h1>
+        <p class="text-[var(--color-text-muted)] mt-2 max-w-2xl">
+          Your complete guide to Japanese cooking ingredients. Click on any ingredient to learn more and find recipes that use it.
+        </p>
+      </div>
+
+      {sortedCategories.length > 0 ? (
+        <div class="space-y-12">
+          {sortedCategories.map(cat => (
+            <div>
+              <h2 class="text-xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-4 capitalize border-b border-[var(--color-border-light)] pb-2">
+                {cat}
+              </h2>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {grouped[cat].map((ing: any) => (
+                  <a 
+                    href={`/ingredients/${ing.slug}`}
+                    class="flex items-center gap-3 p-3 rounded-xl bg-white border border-[var(--color-border-light)] hover:border-[var(--color-clay)] hover:shadow-[var(--shadow-sm)] transition-all"
+                  >
+                    {ing.image_url ? (
+                      <img src={ing.image_url} alt={ing.name_en} class="w-10 h-10 rounded-lg object-cover" loading="lazy" />
+                    ) : (
+                      <div class="w-10 h-10 rounded-lg bg-[var(--color-sand)] flex items-center justify-center text-lg">🥢</div>
+                    )}
+                    <div class="min-w-0">
+                      <p class="text-sm font-medium text-[var(--color-ink)] truncate">{ing.name_en}</p>
+                      {ing.name_jp && <p class="text-xs text-[var(--color-text-light)] text-jp truncate">{ing.name_jp}</p>}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-20 bg-[var(--color-sand)]/30 rounded-2xl border-2 border-dashed border-[var(--color-border)]">
+          <p class="text-5xl mb-4">🥢</p>
+          <h2 class="text-xl font-bold font-[family-name:var(--font-display)]">Ingredient Guide Coming Soon</h2>
+          <p class="text-[var(--color-text-muted)] mt-2">We're building a comprehensive ingredient database.</p>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>

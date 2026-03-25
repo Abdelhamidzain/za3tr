@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+/* ===========================
+   Za3tr Design System
+   Japanese Recipe Website
+   Warm palette: cream/sand/clay
+   =========================== */
+
+@theme {
+  /* Core Palette */
+  --color-cream: #FFF8F0;
+  --color-cream-dark: #F5EDE1;
+  --color-sand: #F5E6D3;
+  --color-sand-dark: #E8D5BE;
+  --color-clay: #C4956A;
+  --color-clay-dark: #A87B52;
+  --color-terracotta: #B85C38;
+  --color-terracotta-dark: #9A4A2B;
+  --color-charcoal: #2D2D2D;
+  --color-ink: #1A1A1A;
+  
+  /* Accent Colors */
+  --color-red-jp: #C41E3A;
+  --color-red-jp-light: #E8344F;
+  --color-matcha: #4A7C59;
+  --color-matcha-light: #6B9E7A;
+  --color-gold: #D4A843;
+  --color-indigo: #3D5A80;
+  
+  /* Semantic */
+  --color-bg: #FFF8F0;
+  --color-bg-alt: #F5E6D3;
+  --color-text: #1A1A1A;
+  --color-text-muted: #6B5E50;
+  --color-text-light: #8C7E6E;
+  --color-border: #E8D5BE;
+  --color-border-light: #F0E4D4;
+  
+  /* Typography */
+  --font-display: 'Playfair Display', 'Noto Serif JP', Georgia, serif;
+  --font-body: 'DM Sans', 'Noto Sans JP', system-ui, sans-serif;
+  --font-jp: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+  
+  /* Spacing */
+  --container-max: 1200px;
+  --content-max: 800px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(26, 26, 26, 0.06);
+  --shadow-md: 0 4px 12px rgba(26, 26, 26, 0.08);
+  --shadow-lg: 0 8px 30px rgba(26, 26, 26, 0.1);
+  --shadow-warm: 0 4px 20px rgba(196, 149, 106, 0.15);
+}
+
+/* Google Fonts */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+}
+
+/* Base Styles */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-cream);
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+
+/* Japanese text utility */
+.text-jp {
+  font-family: var(--font-jp);
+}
+
+/* Container */
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+.content-width {
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+/* Recipe Card Hover */
+.recipe-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.recipe-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-warm);
+}
+
+/* Tag Styles */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.tag-difficulty-beginner {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+}
+.tag-difficulty-intermediate {
+  background-color: #FFF3E0;
+  color: #E65100;
+}
+.tag-difficulty-advanced {
+  background-color: #FCE4EC;
+  color: #C62828;
+}
+
+/* Decorative Japanese Wave Pattern */
+.wave-divider {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z' opacity='.15' fill='%23C4956A'%3E%3C/path%3E%3Cpath d='M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z' opacity='.3' fill='%23C4956A'%3E%3C/path%3E%3C/svg%3E");
+  background-size: cover;
+  height: 40px;
+  width: 100%;
+}
+
+/* Print Styles */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+}

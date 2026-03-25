@@ -1,0 +1,123 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RecipeCard from '../../components/recipe/RecipeCard.astro';
+import { supabase, getIngredientBySlug } from '../../lib/supabase';
+
+export async function getStaticPaths() {
+  let data: any[] = [];
+  try {
+    const res = await supabase.from('ingredients').select('slug');
+    data = res.data || [];
+  } catch (e) {}
+  return data.map(i => ({ params: { slug: i.slug } }));
+}
+
+const { slug } = Astro.params;
+
+let ingredient: any = null;
+let recipes: any[] = [];
+
+try {
+  const result = await getIngredientBySlug(slug!);
+  ingredient = result.ingredient;
+  recipes = result.recipes;
+} catch (e) {}
+
+if (!ingredient) return Astro.redirect('/404');
+---
+
+<BaseLayout 
+  title={`${ingredient.name_en} — Japanese Ingredient Guide`}
+  description={ingredient.description_en || `Learn about ${ingredient.name_en}, a key Japanese cooking ingredient. Find recipes and substitutes.`}
+>
+  <article class="py-12 md:py-16">
+    <div class="container">
+      <div class="content-width">
+        
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm text-[var(--color-text-light)] mb-6">
+          <a href="/" class="hover:text-[var(--color-terracotta)]">Home</a>
+          <span>/</span>
+          <a href="/ingredients" class="hover:text-[var(--color-terracotta)]">Ingredients</a>
+          <span>/</span>
+          <span class="text-[var(--color-text-muted)]">{ingredient.name_en}</span>
+        </nav>
+
+        <!-- Header -->
+        <div class="flex items-start gap-6">
+          {ingredient.image_url ? (
+            <img src={ingredient.image_url} alt={ingredient.name_en} class="w-24 h-24 rounded-2xl object-cover" />
+          ) : (
+            <div class="w-24 h-24 rounded-2xl bg-[var(--color-sand)] flex items-center justify-center text-4xl">🥢</div>
+          )}
+          <div>
+            <h1 class="text-3xl md:text-4xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">
+              {ingredient.name_en}
+            </h1>
+            {ingredient.name_jp && (
+              <p class="text-lg text-[var(--color-text-muted)] text-jp mt-1">{ingredient.name_jp}</p>
+            )}
+            {ingredient.category && (
+              <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs bg-[var(--color-sand)] text-[var(--color-clay-dark)] capitalize">
+                {ingredient.category}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <!-- Description -->
+        {ingredient.description_en && (
+          <div class="mt-8 prose prose-lg max-w-none text-[var(--color-text)]">
+            <p>{ingredient.description_en}</p>
+          </div>
+        )}
+
+        <!-- Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+          {ingredient.substitutes?.length > 0 && (
+            <div class="bg-[var(--color-sand)]/40 rounded-2xl p-6 border border-[var(--color-border-light)]">
+              <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink)] mb-3">Substitutes</h2>
+              <ul class="space-y-2">
+                {ingredient.substitutes.map((sub: string) => (
+                  <li class="flex items-center gap-2 text-sm text-[var(--color-text)]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-matcha)]"></span>
+                    {sub}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {ingredient.where_to_buy && (
+            <div class="bg-[var(--color-sand)]/40 rounded-2xl p-6 border border-[var(--color-border-light)]">
+              <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink)] mb-3">Where to Buy</h2>
+              <p class="text-sm text-[var(--color-text)]">{ingredient.where_to_buy}</p>
+            </div>
+          )}
+        </div>
+
+        <!-- Recipes using this ingredient -->
+        {recipes.length > 0 && (
+          <div class="mt-12">
+            <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-6">
+              Recipes with {ingredient.name_en}
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recipes.map((recipe: any) => (
+                <RecipeCard
+                  slug={recipe.slug}
+                  title={recipe.title_en}
+                  titleJp={recipe.title_jp}
+                  image={recipe.hero_image_url}
+                  category={recipe.category}
+                  difficulty={recipe.difficulty}
+                  totalTime={recipe.total_time}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </article>
+</BaseLayout>

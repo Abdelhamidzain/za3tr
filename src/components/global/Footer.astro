@@ -1,0 +1,104 @@
+---
+const currentYear = new Date().getFullYear();
+
+const categories = [
+  { name: 'Ramen', href: '/recipes?category=ramen' },
+  { name: 'Sushi', href: '/recipes?category=sushi' },
+  { name: 'Tempura', href: '/recipes?category=tempura' },
+  { name: 'Donburi', href: '/recipes?category=donburi' },
+  { name: 'Curry', href: '/recipes?category=curry' },
+  { name: 'Desserts', href: '/recipes?category=desserts' },
+];
+
+const explore = [
+  { name: 'All Recipes', href: '/recipes' },
+  { name: 'Ingredients Guide', href: '/ingredients' },
+  { name: 'Techniques', href: '/techniques' },
+  { name: 'Japanese Food Culture', href: '/culture' },
+  { name: 'Cooking Tools', href: '/tools' },
+];
+---
+
+<footer class="bg-[var(--color-ink)] text-[var(--color-sand)] no-print">
+  <!-- Wave Divider -->
+  <div class="wave-divider -mb-1 rotate-180 opacity-40"></div>
+  
+  <div class="container py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      
+      <!-- Brand -->
+      <div class="lg:col-span-1">
+        <a href="/" class="inline-flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-full bg-[var(--color-terracotta)] flex items-center justify-center text-white font-bold text-lg font-[family-name:var(--font-display)]">
+            Z
+          </div>
+          <span class="text-xl font-bold font-[family-name:var(--font-display)] text-white tracking-tight">Za3tr</span>
+        </a>
+        <p class="text-sm text-[var(--color-sand-dark)] leading-relaxed mt-3">
+          Authentic Japanese recipes made simple. Master the art of Japanese cooking from the comfort of your kitchen.
+        </p>
+        <p class="text-sm text-[var(--color-sand-dark)] mt-2 text-jp">
+          本格的な日本料理レシピ
+        </p>
+      </div>
+
+      <!-- Categories -->
+      <div>
+        <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Categories</h3>
+        <ul class="space-y-2.5">
+          {categories.map(item => (
+            <li>
+              <a href={item.href} class="text-sm text-[var(--color-sand-dark)] hover:text-white transition-colors">
+                {item.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Explore -->
+      <div>
+        <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Explore</h3>
+        <ul class="space-y-2.5">
+          {explore.map(item => (
+            <li>
+              <a href={item.href} class="text-sm text-[var(--color-sand-dark)] hover:text-white transition-colors">
+                {item.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Newsletter Placeholder -->
+      <div>
+        <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Stay Updated</h3>
+        <p class="text-sm text-[var(--color-sand-dark)] mb-4">
+          Get weekly Japanese recipes and cooking tips delivered to your inbox.
+        </p>
+        <form class="flex gap-2">
+          <input 
+            type="email" 
+            placeholder="your@email.com" 
+            class="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[var(--color-terracotta)]"
+          />
+          <button type="submit" class="px-4 py-2 bg-[var(--color-terracotta)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-terracotta-dark)] transition-colors">
+            Join
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-xs text-[var(--color-sand-dark)]">
+        &copy; {currentYear} Za3tr. All rights reserved.
+      </p>
+      <div class="flex items-center gap-6">
+        <a href="/privacy" class="text-xs text-[var(--color-sand-dark)] hover:text-white transition-colors">Privacy</a>
+        <a href="/terms" class="text-xs text-[var(--color-sand-dark)] hover:text-white transition-colors">Terms</a>
+        <a href="/sitemap-index.xml" class="text-xs text-[var(--color-sand-dark)] hover:text-white transition-colors">Sitemap</a>
+      </div>
+    </div>
+  </div>
+</footer>

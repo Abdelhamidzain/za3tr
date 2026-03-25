@@ -1,0 +1,254 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RecipeSchema from '../../components/seo/RecipeSchema.astro';
+import FAQSchema from '../../components/seo/FAQSchema.astro';
+import { supabase, getAllRecipeSlugs } from '../../lib/supabase';
+
+export async function getStaticPaths() {
+  let slugs: string[] = [];
+  try {
+    slugs = await getAllRecipeSlugs();
+  } catch (e) {}
+  return slugs.map(slug => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+
+// Fetch recipe with ingredients
+let recipe: any = null;
+let ingredients: any[] = [];
+
+try {
+  const { data } = await supabase
+    .rpc('get_recipe_with_ingredients', { recipe_slug: slug! });
+  
+  if (data) {
+    recipe = data.recipe;
+    ingredients = data.ingredients || [];
+  }
+} catch (e) {}
+
+if (!recipe) {
+  return Astro.redirect('/404');
+}
+
+// Parse step_images and content steps
+const steps = recipe.content_en?.split('\n').filter((s: string) => s.trim()) || [];
+const stepImages = recipe.step_images || [];
+
+// Difficulty styling
+const diffClass = recipe.difficulty === 'beginner' ? 'tag-difficulty-beginner' : recipe.difficulty === 'intermediate' ? 'tag-difficulty-intermediate' : 'tag-difficulty-advanced';
+---
+
+<BaseLayout 
+  title={recipe.title_en} 
+  description={recipe.meta_description_en || recipe.description_en || ''}
+  ogImage={recipe.hero_image_url}
+>
+  <!-- Recipe Schema -->
+  <RecipeSchema
+    name={recipe.title_en}
+    description={recipe.description_en || ''}
+    image={recipe.hero_image_url || ''}
+    prepTime={recipe.prep_time || 0}
+    cookTime={recipe.cook_time || 0}
+    totalTime={recipe.total_time || 0}
+    servings={recipe.servings || 4}
+    category={recipe.category || 'Main Dish'}
+    calories={recipe.calories}
+    ingredients={ingredients.map((i: any) => ({
+      amount: i.amount || '',
+      unit: i.unit || '',
+      name: i.ingredient?.name_en || ''
+    }))}
+    steps={steps}
+    slug={slug!}
+  />
+
+  <article class="py-8 md:py-12">
+    <div class="container">
+      <div class="content-width">
+        
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm text-[var(--color-text-light)] mb-6">
+          <a href="/" class="hover:text-[var(--color-terracotta)]">Home</a>
+          <span>/</span>
+          <a href="/recipes" class="hover:text-[var(--color-terracotta)]">Recipes</a>
+          {recipe.category && (
+            <>
+              <span>/</span>
+              <a href={`/recipes?category=${recipe.category}`} class="hover:text-[var(--color-terracotta)] capitalize">{recipe.category}</a>
+            </>
+          )}
+          <span>/</span>
+          <span class="text-[var(--color-text-muted)]">{recipe.title_en}</span>
+        </nav>
+
+        <!-- Title -->
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] leading-tight">
+          {recipe.title_en}
+        </h1>
+        
+        {recipe.title_jp && (
+          <p class="text-lg text-[var(--color-text-muted)] text-jp mt-2">{recipe.title_jp}</p>
+        )}
+
+        {recipe.description_en && (
+          <p class="text-lg text-[var(--color-text-muted)] mt-4 leading-relaxed">{recipe.description_en}</p>
+        )}
+
+        <!-- Meta Bar -->
+        <div class="flex flex-wrap items-center gap-4 mt-6 py-4 border-y border-[var(--color-border-light)]">
+          {recipe.difficulty && (
+            <span class:list={["tag", diffClass]}>{recipe.difficulty}</span>
+          )}
+          
+          {recipe.prep_time && (
+            <div class="flex items-center gap-1.5 text-sm text-[var(--color-text-muted)]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Prep: {recipe.prep_time}min
+            </div>
+          )}
+          
+          {recipe.cook_time && (
+            <div class="flex items-center gap-1.5 text-sm text-[var(--color-text-muted)]">
+              <span>Cook: {recipe.cook_time}min</span>
+            </div>
+          )}
+          
+          {recipe.total_time && (
+            <div class="flex items-center gap-1.5 text-sm font-medium text-[var(--color-ink)]">
+              Total: {recipe.total_time}min
+            </div>
+          )}
+          
+          {recipe.servings && (
+            <div class="flex items-center gap-1.5 text-sm text-[var(--color-text-muted)]">
+              Serves {recipe.servings}
+            </div>
+          )}
+
+          <!-- Print Button -->
+          <button onclick="window.print()" class="ml-auto flex items-center gap-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-terracotta)] no-print">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+            Print
+          </button>
+        </div>
+
+        <!-- Hero Image -->
+        {recipe.hero_image_url && (
+          <div class="mt-8 rounded-2xl overflow-hidden aspect-video bg-[var(--color-sand)]">
+            <img 
+              src={recipe.hero_image_url} 
+              alt={recipe.title_en}
+              class="w-full h-full object-cover"
+              loading="eager"
+            />
+          </div>
+        )}
+
+        <!-- Two Column Layout: Ingredients + Steps -->
+        <div class="mt-10 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-10">
+          
+          <!-- Ingredients Sidebar -->
+          <aside class="lg:sticky lg:top-28 lg:self-start">
+            <div class="bg-[var(--color-sand)]/40 rounded-2xl p-6 border border-[var(--color-border-light)]">
+              <h2 class="text-xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-4">
+                Ingredients
+              </h2>
+              
+              <ul class="space-y-3">
+                {ingredients.map((item: any) => (
+                  <li class="flex items-start gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-terracotta)] mt-2 shrink-0"></span>
+                    <span class="text-sm text-[var(--color-text)]">
+                      {item.amount && <strong class="font-medium">{item.amount} {item.unit}</strong>}
+                      {' '}
+                      {item.ingredient?.slug ? (
+                        <a href={`/ingredients/${item.ingredient.slug}`} class="text-[var(--color-terracotta)] hover:underline">
+                          {item.ingredient.name_en}
+                        </a>
+                      ) : (
+                        item.ingredient?.name_en
+                      )}
+                      {item.notes && <span class="text-[var(--color-text-light)]"> ({item.notes})</span>}
+                      {item.is_optional && <span class="text-xs text-[var(--color-text-light)] italic"> - optional</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <!-- Nutrition Facts -->
+            {(recipe.calories || recipe.protein) && (
+              <div class="mt-4 bg-white rounded-2xl p-6 border border-[var(--color-border-light)]">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink)] mb-3">Nutrition Facts</h3>
+                <p class="text-xs text-[var(--color-text-light)] mb-3">Per serving</p>
+                <div class="space-y-2">
+                  {recipe.calories && (
+                    <div class="flex justify-between text-sm border-b border-[var(--color-border-light)] pb-2">
+                      <span class="text-[var(--color-text-muted)]">Calories</span>
+                      <span class="font-medium">{recipe.calories}</span>
+                    </div>
+                  )}
+                  {recipe.protein && (
+                    <div class="flex justify-between text-sm border-b border-[var(--color-border-light)] pb-2">
+                      <span class="text-[var(--color-text-muted)]">Protein</span>
+                      <span class="font-medium">{recipe.protein}g</span>
+                    </div>
+                  )}
+                  {recipe.carbs && (
+                    <div class="flex justify-between text-sm border-b border-[var(--color-border-light)] pb-2">
+                      <span class="text-[var(--color-text-muted)]">Carbs</span>
+                      <span class="font-medium">{recipe.carbs}g</span>
+                    </div>
+                  )}
+                  {recipe.fat && (
+                    <div class="flex justify-between text-sm">
+                      <span class="text-[var(--color-text-muted)]">Fat</span>
+                      <span class="font-medium">{recipe.fat}g</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </aside>
+
+          <!-- Instructions -->
+          <div>
+            <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-6">
+              Instructions
+            </h2>
+            
+            <ol class="space-y-8">
+              {steps.map((step: string, i: number) => (
+                <li class="flex gap-4">
+                  <div class="shrink-0 w-8 h-8 rounded-full bg-[var(--color-terracotta)] text-white flex items-center justify-center text-sm font-bold">
+                    {i + 1}
+                  </div>
+                  <div class="flex-1 pt-1">
+                    <p class="text-[var(--color-text)] leading-relaxed">{step}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <!-- Tags -->
+            {(recipe.cuisine_tags?.length > 0 || recipe.dietary_tags?.length > 0) && (
+              <div class="mt-10 pt-6 border-t border-[var(--color-border-light)]">
+                <div class="flex flex-wrap gap-2">
+                  {recipe.cuisine_tags?.map((tag: string) => (
+                    <span class="px-3 py-1 rounded-full text-xs bg-[var(--color-sand)] text-[var(--color-clay-dark)]">{tag}</span>
+                  ))}
+                  {recipe.dietary_tags?.map((tag: string) => (
+                    <span class="px-3 py-1 rounded-full text-xs bg-[#E8F5E9] text-[#2E7D32]">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

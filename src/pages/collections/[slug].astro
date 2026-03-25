@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RecipeCard from '../../components/recipe/RecipeCard.astro';
+import { supabase } from '../../lib/supabase';
+
+export async function getStaticPaths() {
+  let data: any[] = [];
+  try {
+    const res = await supabase.from('collection_pages').select('slug').eq('status', 'published');
+    data = res.data || [];
+  } catch (e) {}
+  return data.map(p => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+let page: any = null;
+let recipes: any[] = [];
+
+try {
+  const { data } = await supabase.from('collection_pages').select('*').eq('slug', slug!).single();
+  page = data;
+  if (page?.recipe_ids?.length > 0) {
+    const { data: rData } = await supabase.from('recipes').select('*').in('id', page.recipe_ids).eq('status', 'published');
+    recipes = rData || [];
+  }
+} catch (e) {}
+
+if (!page) return Astro.redirect('/404');
+---
+
+<BaseLayout title={page.title_en} description={page.meta_description_en || page.description_en}>
+  <section class="py-12 md:py-16">
+    <div class="container">
+      <h1 class="text-3xl md:text-4xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">{page.title_en}</h1>
+      {page.description_en && <p class="text-lg text-[var(--color-text-muted)] mt-4">{page.description_en}</p>}
+      
+      {recipes.length > 0 && (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+          {recipes.map(r => (
+            <RecipeCard slug={r.slug} title={r.title_en} titleJp={r.title_jp} image={r.hero_image_url} category={r.category} difficulty={r.difficulty} totalTime={r.total_time} />
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>

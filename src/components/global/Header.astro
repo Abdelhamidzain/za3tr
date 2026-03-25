@@ -1,0 +1,134 @@
+---
+const categories = [
+  { name: 'Ramen', slug: 'ramen', emoji: '🍜' },
+  { name: 'Sushi', slug: 'sushi', emoji: '🍣' },
+  { name: 'Tempura', slug: 'tempura', emoji: '🍤' },
+  { name: 'Donburi', slug: 'donburi', emoji: '🍚' },
+  { name: 'Curry', slug: 'curry', emoji: '🍛' },
+  { name: 'Noodles', slug: 'noodles', emoji: '🍝' },
+  { name: 'Desserts', slug: 'desserts', emoji: '🍡' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-50 bg-[var(--color-cream)]/95 backdrop-blur-md border-b border-[var(--color-border-light)]">
+  <!-- Top Bar -->
+  <div class="container flex items-center justify-between py-4">
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-3 group">
+      <div class="w-10 h-10 rounded-full bg-[var(--color-terracotta)] flex items-center justify-center text-white font-bold text-lg font-[family-name:var(--font-display)]">
+        Z
+      </div>
+      <div>
+        <span class="text-xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] tracking-tight group-hover:text-[var(--color-terracotta)] transition-colors">
+          Za3tr
+        </span>
+        <span class="hidden sm:block text-xs text-[var(--color-text-muted)] tracking-widest uppercase">
+          Japanese Recipes
+        </span>
+      </div>
+    </a>
+
+    <!-- Desktop Nav -->
+    <nav class="hidden lg:flex items-center gap-6">
+      <a href="/recipes" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath === '/recipes' ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
+        All Recipes
+      </a>
+      <a href="/ingredients" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath === '/ingredients' ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
+        Ingredients
+      </a>
+      <a href="/techniques" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath.startsWith('/techniques') ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
+        Techniques
+      </a>
+      <a href="/culture" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath.startsWith('/culture') ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
+        Culture
+      </a>
+    </nav>
+
+    <!-- Search + Language -->
+    <div class="flex items-center gap-3">
+      <!-- Search Button -->
+      <button id="search-toggle" class="p-2 rounded-lg hover:bg-[var(--color-sand)] transition-colors" aria-label="Search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+      </button>
+      
+      <!-- Language Toggle -->
+      <a href="/ja" class="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--color-sand)] text-[var(--color-clay-dark)] hover:bg-[var(--color-sand-dark)] transition-colors">
+        <span>日本語</span>
+      </a>
+
+      <!-- Mobile Menu Button -->
+      <button id="mobile-menu-toggle" class="lg:hidden p-2 rounded-lg hover:bg-[var(--color-sand)] transition-colors" aria-label="Menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" x2="20" y1="12" y2="12"></line>
+          <line x1="4" x2="20" y1="6" y2="6"></line>
+          <line x1="4" x2="20" y1="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Category Bar -->
+  <div class="border-t border-[var(--color-border-light)] overflow-x-auto no-print">
+    <div class="container flex items-center gap-1 py-2">
+      {categories.map(cat => (
+        <a 
+          href={`/recipes?category=${cat.slug}`}
+          class:list={[
+            "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all",
+            currentPath.includes(cat.slug) 
+              ? "bg-[var(--color-terracotta)] text-white" 
+              : "text-[var(--color-text-muted)] hover:bg-[var(--color-sand)] hover:text-[var(--color-ink)]"
+          ]}
+        >
+          <span class="text-base">{cat.emoji}</span>
+          <span class="font-medium">{cat.name}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Menu Overlay -->
+<div id="mobile-menu" class="fixed inset-0 z-[60] bg-[var(--color-cream)] transform translate-x-full transition-transform duration-300 lg:hidden">
+  <div class="p-6">
+    <button id="mobile-menu-close" class="absolute top-4 right-4 p-2" aria-label="Close menu">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+    
+    <nav class="mt-12 space-y-1">
+      <a href="/recipes" class="block px-4 py-3 text-lg font-medium rounded-lg hover:bg-[var(--color-sand)]">All Recipes</a>
+      <a href="/ingredients" class="block px-4 py-3 text-lg font-medium rounded-lg hover:bg-[var(--color-sand)]">Ingredients</a>
+      <a href="/techniques" class="block px-4 py-3 text-lg font-medium rounded-lg hover:bg-[var(--color-sand)]">Techniques</a>
+      <a href="/culture" class="block px-4 py-3 text-lg font-medium rounded-lg hover:bg-[var(--color-sand)]">Culture</a>
+      
+      <div class="pt-4 border-t border-[var(--color-border)]">
+        <p class="px-4 py-2 text-xs uppercase tracking-widest text-[var(--color-text-light)]">Categories</p>
+        {categories.map(cat => (
+          <a href={`/recipes?category=${cat.slug}`} class="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-[var(--color-sand)]">
+            <span>{cat.emoji}</span>
+            <span>{cat.name}</span>
+          </a>
+        ))}
+      </div>
+    </nav>
+  </div>
+</div>
+
+<script>
+  const menuToggle = document.getElementById('mobile-menu-toggle');
+  const menuClose = document.getElementById('mobile-menu-close');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  menuToggle?.addEventListener('click', () => {
+    mobileMenu?.classList.remove('translate-x-full');
+  });
+  
+  menuClose?.addEventListener('click', () => {
+    mobileMenu?.classList.add('translate-x-full');
+  });
+</script>

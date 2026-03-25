@@ -1,0 +1,65 @@
+---
+interface Props {
+  slug: string;
+  title: string;
+  titleJp?: string | null;
+  image?: string | null;
+  category?: string | null;
+  difficulty?: string | null;
+  prepTime?: number | null;
+  cookTime?: number | null;
+  totalTime?: number | null;
+}
+
+const { slug, title, titleJp, image, category, difficulty, prepTime, cookTime, totalTime } = Astro.props;
+
+const placeholderImage = `https://placehold.co/600x400/F5E6D3/B85C38?text=${encodeURIComponent(title)}`;
+const difficultyClass = difficulty === 'beginner' ? 'tag-difficulty-beginner' : difficulty === 'intermediate' ? 'tag-difficulty-intermediate' : 'tag-difficulty-advanced';
+---
+
+<a href={`/recipes/${slug}`} class="recipe-card block bg-white rounded-2xl overflow-hidden shadow-[var(--shadow-sm)] border border-[var(--color-border-light)]">
+  <!-- Image -->
+  <div class="relative aspect-[4/3] overflow-hidden bg-[var(--color-sand)]">
+    <img 
+      src={image || placeholderImage} 
+      alt={title}
+      loading="lazy"
+      decoding="async"
+      class="w-full h-full object-cover"
+    />
+    
+    {category && (
+      <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-medium bg-white/90 backdrop-blur-sm text-[var(--color-ink)] capitalize">
+        {category}
+      </span>
+    )}
+  </div>
+  
+  <!-- Content -->
+  <div class="p-4">
+    <h3 class="font-[family-name:var(--font-display)] text-lg font-bold text-[var(--color-ink)] leading-tight">
+      {title}
+    </h3>
+    
+    {titleJp && (
+      <p class="text-sm text-[var(--color-text-muted)] text-jp mt-0.5">{titleJp}</p>
+    )}
+    
+    <!-- Meta -->
+    <div class="flex items-center gap-3 mt-3">
+      {difficulty && (
+        <span class:list={["tag", difficultyClass]}>{difficulty}</span>
+      )}
+      
+      {totalTime && (
+        <span class="flex items-center gap-1 text-xs text-[var(--color-text-light)]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          {totalTime} min
+        </span>
+      )}
+    </div>
+  </div>
+</a>

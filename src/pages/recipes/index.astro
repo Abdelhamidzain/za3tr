@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RecipeCard from '../../components/recipe/RecipeCard.astro';
+import { getPublishedRecipes } from '../../lib/supabase';
+
+let recipes: any[] = [];
+try {
+  recipes = await getPublishedRecipes() || [];
+} catch (e) {}
+---
+
+<BaseLayout title="All Recipes" description="Browse our complete collection of authentic Japanese recipes.">
+  <section class="py-12 md:py-16">
+    <div class="container">
+      <div class="mb-10">
+        <p class="text-sm text-[var(--color-clay)] font-medium tracking-widest uppercase mb-2">Collection</p>
+        <h1 class="text-3xl md:text-4xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">
+          All Recipes
+        </h1>
+        <p class="text-[var(--color-text-muted)] mt-2">
+          {recipes.length > 0 ? `${recipes.length} authentic Japanese recipes` : 'Our collection is growing — check back soon!'}
+        </p>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="flex flex-wrap gap-2 mb-8 pb-6 border-b border-[var(--color-border-light)]">
+        <button class="px-4 py-2 rounded-full text-sm font-medium bg-[var(--color-terracotta)] text-white">All</button>
+        {['Ramen', 'Sushi', 'Tempura', 'Donburi', 'Curry', 'Noodles', 'Desserts'].map(cat => (
+          <a href={`?category=${cat.toLowerCase()}`} class="px-4 py-2 rounded-full text-sm font-medium text-[var(--color-text-muted)] bg-[var(--color-sand)] hover:bg-[var(--color-sand-dark)] transition-colors">
+            {cat}
+          </a>
+        ))}
+      </div>
+
+      {recipes.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {recipes.map(recipe => (
+            <RecipeCard
+              slug={recipe.slug}
+              title={recipe.title_en}
+              titleJp={recipe.title_jp}
+              image={recipe.hero_image_url}
+              category={recipe.category}
+              difficulty={recipe.difficulty}
+              totalTime={recipe.total_time}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-20 bg-[var(--color-sand)]/30 rounded-2xl border-2 border-dashed border-[var(--color-border)]">
+          <p class="text-5xl mb-4">🍳</p>
+          <h2 class="text-xl font-bold font-[family-name:var(--font-display)]">Recipes Coming Soon</h2>
+          <p class="text-[var(--color-text-muted)] mt-2">We're preparing authentic Japanese recipes for you.</p>
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>
