@@ -306,7 +306,7 @@ function AIGeneratorPage() {
     setResult(null);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`${supabaseUrl}/functions/v1/generate-content`, {
+      const res = await fetch(`${supabaseUrl}/functions/v1/generate-content-v2`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
