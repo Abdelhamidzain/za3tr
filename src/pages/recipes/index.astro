@@ -1,21 +1,31 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import RecipeCard from '../../components/recipe/RecipeCard.astro';
-import { getPublishedRecipes } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
+
+const category = Astro.url.searchParams.get('category') || '';
+const categories = ['ramen', 'sushi', 'tempura', 'donburi', 'curry', 'noodles', 'desserts', 'appetizers', 'side-dish', 'soup', 'rice', 'drinks'];
 
 let recipes: any[] = [];
 try {
-  recipes = await getPublishedRecipes() || [];
+  let query = supabase.from('recipes').select('*').eq('status', 'published').order('published_at', { ascending: false });
+  if (category && categories.includes(category)) {
+    query = query.eq('category', category);
+  }
+  const { data } = await query;
+  recipes = data || [];
 } catch (e) {}
+
+const pageTitle = category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Recipes` : 'All Recipes';
 ---
 
-<BaseLayout title="All Recipes" description="Browse our complete collection of authentic Japanese recipes.">
+<BaseLayout title={pageTitle} description={`Browse our collection of authentic Japanese ${category || ''} recipes.`}>
   <section class="py-12 md:py-16">
     <div class="container">
       <div class="mb-10">
         <p class="text-sm text-[var(--color-clay)] font-medium tracking-widest uppercase mb-2">Collection</p>
         <h1 class="text-3xl md:text-4xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">
-          All Recipes
+          {pageTitle}
         </h1>
         <p class="text-[var(--color-text-muted)] mt-2">
           {recipes.length > 0 ? `${recipes.length} authentic Japanese recipes` : 'Our collection is growing — check back soon!'}
@@ -24,10 +34,12 @@ try {
 
       <!-- Filter Bar -->
       <div class="flex flex-wrap gap-2 mb-8 pb-6 border-b border-[var(--color-border-light)]">
-        <button class="px-4 py-2 rounded-full text-sm font-medium bg-[var(--color-terracotta)] text-white">All</button>
-        {['Ramen', 'Sushi', 'Tempura', 'Donburi', 'Curry', 'Noodles', 'Desserts'].map(cat => (
-          <a href={`?category=${cat.toLowerCase()}`} class="px-4 py-2 rounded-full text-sm font-medium text-[var(--color-text-muted)] bg-[var(--color-sand)] hover:bg-[var(--color-sand-dark)] transition-colors">
-            {cat}
+        <a href="/recipes/" class:list={["px-4 py-2 rounded-full text-sm font-medium transition-colors", !category ? 'bg-[var(--color-terracotta)] text-white' : 'text-[var(--color-text-muted)] bg-[var(--color-sand)] hover:bg-[var(--color-sand-dark)]']}>
+          All
+        </a>
+        {categories.filter(c => ['ramen','sushi','tempura','donburi','curry','noodles','desserts','appetizers','side-dish','soup'].includes(c)).map(cat => (
+          <a href={`/recipes/?category=${cat}`} class:list={["px-4 py-2 rounded-full text-sm font-medium transition-colors", category === cat ? 'bg-[var(--color-terracotta)] text-white' : 'text-[var(--color-text-muted)] bg-[var(--color-sand)] hover:bg-[var(--color-sand-dark)]']}>
+            {cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}
           </a>
         ))}
       </div>
@@ -43,13 +55,17 @@ try {
               category={recipe.category}
               difficulty={recipe.difficulty}
               totalTime={recipe.total_time}
+              avgRating={recipe.avg_rating}
+              reviewCount={recipe.review_count}
             />
           ))}
         </div>
       ) : (
         <div class="text-center py-20 bg-[var(--color-sand)]/30 rounded-2xl border-2 border-dashed border-[var(--color-border)]">
           <p class="text-5xl mb-4">🍳</p>
-          <h2 class="text-xl font-bold font-[family-name:var(--font-display)]">Recipes Coming Soon</h2>
+          <h2 class="text-xl font-bold font-[family-name:var(--font-display)]">
+            {category ? `No ${category} recipes yet` : 'Recipes Coming Soon'}
+          </h2>
           <p class="text-[var(--color-text-muted)] mt-2">We're preparing authentic Japanese recipes for you.</p>
         </div>
       )}

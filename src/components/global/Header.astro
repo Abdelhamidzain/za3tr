@@ -58,11 +58,6 @@ const currentPath = Astro.url.pathname;
           <path d="m21 21-4.3-4.3"></path>
         </svg>
       </button>
-      
-      <!-- Language Toggle -->
-      <button id="lang-toggle" class="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--color-sand)] text-[var(--color-clay-dark)] hover:bg-[var(--color-sand-dark)] transition-colors cursor-pointer">
-        <span id="lang-label">日本語</span>
-      </button>
 
       <!-- Mobile Menu Button -->
       <button id="mobile-menu-toggle" class="lg:hidden p-2 rounded-lg hover:bg-[var(--color-sand)] transition-colors" aria-label="Menu">
@@ -134,37 +129,4 @@ const currentPath = Astro.url.pathname;
   menuClose?.addEventListener('click', () => {
     mobileMenu?.classList.add('translate-x-full');
   });
-
-  // Language toggle
-  const langToggle = document.getElementById('lang-toggle');
-  const langLabel = document.getElementById('lang-label');
-  
-  function getLang() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('lang') || localStorage.getItem('za3tr-lang') || 'en';
-  }
-
-  function updateLangUI() {
-    const lang = getLang();
-    if (langLabel) langLabel.textContent = lang === 'ja' ? 'English' : '日本語';
-    document.documentElement.lang = lang;
-    // Show/hide content based on lang
-    document.querySelectorAll('[data-lang-en]').forEach(el => {
-      (el as HTMLElement).style.display = lang === 'en' ? '' : 'none';
-    });
-    document.querySelectorAll('[data-lang-ja]').forEach(el => {
-      (el as HTMLElement).style.display = lang === 'ja' ? '' : 'none';
-    });
-  }
-
-  langToggle?.addEventListener('click', () => {
-    const current = getLang();
-    const next = current === 'en' ? 'ja' : 'en';
-    localStorage.setItem('za3tr-lang', next);
-    const url = new URL(window.location.href);
-    url.searchParams.set('lang', next);
-    window.location.href = url.toString();
-  });
-
-  updateLangUI();
 </script>
