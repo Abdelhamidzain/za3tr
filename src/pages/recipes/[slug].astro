@@ -82,7 +82,7 @@ const breadcrumbSchema = JSON.stringify({
 
         <!-- Author -->
         <div class="flex items-center gap-3 mt-4">
-          <img src={`${STORAGE}/persona/portrait.webp`} alt="Akemi Hayashi" class="w-10 h-10 rounded-full object-cover" loading="lazy" width="40" height="40" />
+          <img src="https://doswprgdalotithjdjkc.supabase.co/storage/v1/render/image/public/images/persona/portrait.webp?width=80&quality=75" alt="Akemi Hayashi" class="w-10 h-10 rounded-full object-cover" loading="lazy" width="40" height="40" />
           <div>
             <a href="/about" class="text-sm font-semibold text-[var(--color-ink)] hover:text-[var(--color-terracotta)]">Akemi Hayashi</a>
             <p class="text-xs text-[var(--color-text-light)]">{recipe.published_at ? new Date(recipe.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</p>
@@ -129,7 +129,7 @@ const breadcrumbSchema = JSON.stringify({
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
               <input type="email" id="email-input" aria-label="Email address" placeholder="you@email.com" style="padding:8px 14px;border:1px solid #ddd;border-radius:10px;font-size:13px;flex:1;min-width:200px;outline:none;" />
-              <button id="email-submit-btn" aria-label="Subscribe to newsletter" onclick="subscribeEmail()" style="background:#B85C38;color:white;padding:8px 18px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Send</button>
+              <button id="email-submit-btn" aria-label="Subscribe to newsletter" onclick="subscribeEmail()" style="background:#9A4A2B;color:white;padding:8px 18px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Send</button>
             </div>
           </div>
           <p id="email-msg" style="display:none;font-size:12px;margin-top:6px;"></p>
@@ -154,14 +154,14 @@ const breadcrumbSchema = JSON.stringify({
                 <h2 class="text-xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">Ingredients</h2>
                 <div class="flex gap-1 no-print">
                   <button onclick="scaleIng(0.5,this)" aria-label="Scale to half" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">½x</button>
-                  <button onclick="scaleIng(1,this)" aria-label="Original scale" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:none;background:#B85C38;color:white;cursor:pointer;">1x</button>
+                  <button onclick="scaleIng(1,this)" aria-label="Original scale" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:none;background:#9A4A2B;color:white;cursor:pointer;">1x</button>
                   <button onclick="scaleIng(2,this)" aria-label="Double scale" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">2x</button>
                   <button onclick="scaleIng(3,this)" aria-label="Triple scale" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">3x</button>
                 </div>
               </div>
               <!-- US/Metric Toggle -->
               <div class="flex items-center gap-2 mb-3 no-print">
-                <button id="unit-us" aria-label="US measurements" onclick="toggleUnits('us')" style="padding:3px 10px;font-size:11px;border-radius:6px;border:none;background:#B85C38;color:white;cursor:pointer;font-weight:600;">US</button>
+                <button id="unit-us" aria-label="US measurements" onclick="toggleUnits('us')" style="padding:3px 10px;font-size:11px;border-radius:6px;border:none;background:#9A4A2B;color:white;cursor:pointer;font-weight:600;">US</button>
                 <button id="unit-metric" aria-label="Metric measurements" onclick="toggleUnits('metric')" style="padding:3px 10px;font-size:11px;border-radius:6px;border:1px solid #ddd;background:white;color:#666;cursor:pointer;font-weight:500;">Metric</button>
                 <span class="text-xs text-[var(--color-text-light)]" id="servings-display">Serves {recipe.servings || 4}</span>
               </div>
@@ -271,7 +271,7 @@ const breadcrumbSchema = JSON.stringify({
 
             <!-- Author Card -->
             <div class="mt-10 p-6 bg-[var(--color-sand)]/30 rounded-2xl border border-[var(--color-border-light)] flex gap-4 items-start">
-              <img src={`${STORAGE}/persona/portrait.webp`} alt="Akemi Hayashi" class="w-16 h-16 rounded-full object-cover shrink-0" loading="lazy" width="64" height="64" />
+              <img src="https://doswprgdalotithjdjkc.supabase.co/storage/v1/render/image/public/images/persona/portrait.webp?width=128&quality=75" alt="Akemi Hayashi" class="w-16 h-16 rounded-full object-cover shrink-0" loading="lazy" width="64" height="64" />
               <div>
                 <a href="/about" class="text-base font-bold text-[var(--color-ink)] hover:text-[var(--color-terracotta)]">Akemi Hayashi</a>
                 <p class="text-xs text-[var(--color-text-light)] mb-2">林 明美 · Recipe Creator</p>
@@ -292,7 +292,7 @@ const breadcrumbSchema = JSON.stringify({
                     <div class="flex gap-1" id="star-rating">{[1,2,3,4,5].map(s => (<button onclick={`setRating(${s})`} class="star-btn" aria-label="Rate" style="background:none;border:none;cursor:pointer;padding:2px;"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>))}</div>
                   </div>
                   <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Comment (optional)</label><textarea id="review-comment" aria-label="Review comment" rows="3" placeholder="What did you think?" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;resize:vertical;"></textarea></div>
-                  <button aria-label="Submit review" onclick="submitReview()" style="background:#B85C38;color:white;padding:10px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Submit Review</button>
+                  <button aria-label="Submit review" onclick="submitReview()" style="background:#9A4A2B;color:white;padding:10px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Submit Review</button>
                   <p id="review-msg" style="display:none;font-size:13px;margin-top:8px;"></p>
                 </div>
               </div>
@@ -349,7 +349,7 @@ const breadcrumbSchema = JSON.stringify({
       const sd = document.getElementById('servings-display');
       if (sd) sd.textContent = 'Serves ' + Math.round(baseServings * m);
       document.querySelectorAll('.sc').forEach(b => { b.style.background='white'; b.style.color='#333'; b.style.border='1px solid #ddd'; });
-      if (btn) { btn.style.background='#B85C38'; btn.style.color='white'; btn.style.border='none'; }
+      if (btn) { btn.style.background='#9A4A2B'; btn.style.color='white'; btn.style.border='none'; }
     };
 
     // US/Metric toggle
@@ -357,10 +357,10 @@ const breadcrumbSchema = JSON.stringify({
     let currentUnit = 'us';
     window.toggleUnits = function(system) {
       currentUnit = system;
-      document.getElementById('unit-us').style.background = system === 'us' ? '#B85C38' : 'white';
+      document.getElementById('unit-us').style.background = system === 'us' ? '#9A4A2B' : 'white';
       document.getElementById('unit-us').style.color = system === 'us' ? 'white' : '#666';
       document.getElementById('unit-us').style.border = system === 'us' ? 'none' : '1px solid #ddd';
-      document.getElementById('unit-metric').style.background = system === 'metric' ? '#B85C38' : 'white';
+      document.getElementById('unit-metric').style.background = system === 'metric' ? '#9A4A2B' : 'white';
       document.getElementById('unit-metric').style.color = system === 'metric' ? 'white' : '#666';
       document.getElementById('unit-metric').style.border = system === 'metric' ? 'none' : '1px solid #ddd';
       document.querySelectorAll('.ingredient-amount').forEach(el => {
@@ -383,7 +383,7 @@ const breadcrumbSchema = JSON.stringify({
       cm = !cm;
       if (cm) {
         try { if ('wakeLock' in navigator) { wl = await navigator.wakeLock.request('screen'); wl.addEventListener('release', () => { cm=false; cb.style.background='white'; cb.style.color='#333'; cb.textContent='Cook Mode'; }); } } catch(e){}
-        cb.style.background='#B85C38'; cb.style.color='white'; cb.textContent='Cook Mode ON';
+        cb.style.background='#9A4A2B'; cb.style.color='white'; cb.textContent='Cook Mode ON';
       } else {
         if (wl) { await wl.release(); wl=null; }
         cb.style.background='white'; cb.style.color='#333'; cb.textContent='Cook Mode';
