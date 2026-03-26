@@ -1,5 +1,4 @@
 ---
-import { ViewTransitions } from 'astro:transitions';
 import '../styles/global.css';
 import Header from '../components/global/Header.astro';
 import Footer from '../components/global/Footer.astro';
@@ -34,12 +33,10 @@ const canonical = canonicalUrl || Astro.url.href;
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="generator" content={Astro.generator} />
   
-  <!-- SEO -->
   <title>{fullTitle}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
   
-  <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content={fullTitle} />
   <meta property="og:description" content={description} />
@@ -47,33 +44,20 @@ const canonical = canonicalUrl || Astro.url.href;
   <meta property="og:url" content={canonical} />
   <meta property="og:site_name" content={siteName} />
   
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={fullTitle} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImage} />
   
-  <!-- Fonts: preconnect + async load (non-render-blocking) -->
-  <!-- Preconnect for faster resource loading -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://doswprgdalotithjdjkc.supabase.co" />
   <link rel="dns-prefetch" href="https://doswprgdalotithjdjkc.supabase.co" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=optional" rel="stylesheet" media="print" onload="this.media='all'" />
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=optional" rel="stylesheet" /></noscript>
   
-  <!-- Preload hero image if provided -->
   {ogImage && ogImage.includes('supabase') && (
     <link rel="preload" as="image" href={ogImage.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=800&quality=80'} />
   )}
   
-  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
   
-  <!-- View Transitions (SPA-like navigation) -->
-  <ViewTransitions />
-  
-  <!-- WebSite Schema for Google Sitelinks -->
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -88,22 +72,17 @@ const canonical = canonicalUrl || Astro.url.href;
     }
   })} />
   
-  <!-- Schema.org -->
   {schema && (
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   )}
 </head>
 <body class="min-h-screen flex flex-col bg-[var(--color-cream)]">
-  <div transition:persist="site-header">
-    <Header />
-  </div>
+  <Header />
   
-  <main class="flex-1" transition:animate="fade">
+  <main class="flex-1">
     <slot />
   </main>
   
-  <div transition:persist="site-footer">
-    <Footer />
-  </div>
+  <Footer />
 </body>
 </html>
