@@ -53,16 +53,38 @@ const canonical = canonicalUrl || Astro.url.href;
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImage} />
   
-  <!-- Fonts -->
+  <!-- Fonts: preconnect + async load (non-render-blocking) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet" /></noscript>
+  
+  <!-- Preload hero image if provided -->
+  {ogImage && ogImage.includes('supabase') && (
+    <link rel="preload" as="image" href={ogImage.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=800&quality=80&format=webp'} />
+  )}
   
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
   
   <!-- View Transitions (SPA-like navigation) -->
   <ViewTransitions />
+  
+  <!-- WebSite Schema for Google Sitelinks -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Za3tr — Japanese Recipes",
+    "url": "https://za3tr.pages.dev",
+    "description": "Authentic Japanese recipes made simple by Akemi Hayashi",
+    "inLanguage": ["en", "ja"],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://za3tr.pages.dev/recipes/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  })} />
   
   <!-- Schema.org -->
   {schema && (

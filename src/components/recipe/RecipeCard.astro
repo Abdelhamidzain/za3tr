@@ -1,4 +1,6 @@
 ---
+import ResponsiveImage from '../global/ResponsiveImage.astro';
+
 interface Props {
   slug: string;
   title: string;
@@ -22,12 +24,14 @@ const difficultyClass = difficulty === 'beginner' ? 'tag-difficulty-beginner' : 
 <a href={`/recipes/${slug}`} class="recipe-card block bg-white rounded-2xl overflow-hidden shadow-[var(--shadow-sm)] border border-[var(--color-border-light)]">
   <!-- Image -->
   <div class="relative aspect-[4/3] overflow-hidden bg-[var(--color-sand)]">
-    <img 
+    <ResponsiveImage 
       src={image || placeholderImage} 
       alt={title}
       loading="lazy"
-      decoding="async"
       class="w-full h-full object-cover"
+      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+      widths={[300, 400, 600]}
+      quality={75}
     />
     
     {category && (

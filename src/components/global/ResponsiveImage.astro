@@ -1,0 +1,59 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+  sizes?: string;
+  widths?: number[];
+  quality?: number;
+  aspectRatio?: string;
+}
+
+const { 
+  src, 
+  alt, 
+  class: className = '', 
+  loading = 'lazy', 
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+  widths = [400, 800, 1200],
+  quality = 75,
+  aspectRatio
+} = Astro.props;
+
+// Convert Supabase object URL to render URL with transforms
+function getTransformUrl(url: string, width: number, q: number): string {
+  if (!url || !url.includes('supabase.co/storage')) return url;
+  // /storage/v1/object/public/ → /storage/v1/render/image/public/
+  const renderUrl = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+  return `${renderUrl}?width=${width}&quality=${q}&format=webp`;
+}
+
+const srcset = widths
+  .map(w => `${getTransformUrl(src, w, quality)} ${w}w`)
+  .join(', ');
+
+const fallbackSrc = getTransformUrl(src, 800, quality);
+const isSupabase = src?.includes('supabase.co/storage');
+---
+
+{isSupabase ? (
+  <img 
+    src={fallbackSrc}
+    srcset={srcset}
+    sizes={sizes}
+    alt={alt}
+    class={className}
+    loading={loading}
+    decoding="async"
+    style={aspectRatio ? `aspect-ratio:${aspectRatio}` : ''}
+  />
+) : (
+  <img 
+    src={src}
+    alt={alt}
+    class={className}
+    loading={loading}
+    decoding="async"
+  />
+)}
