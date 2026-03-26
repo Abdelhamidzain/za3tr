@@ -10,7 +10,7 @@ let recipes: any[] = [];
 try {
   let query = supabase.from('recipes').select('*').eq('status', 'published').order('published_at', { ascending: false });
   if (category && categories.includes(category)) {
-    query = query.eq('category', category);
+    query = query.ilike('category', category);
   }
   const { data } = await query;
   recipes = data || [];
