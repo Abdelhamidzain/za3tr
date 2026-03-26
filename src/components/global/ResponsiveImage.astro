@@ -46,6 +46,7 @@ const isSupabase = src?.includes('supabase.co/storage');
     class={className}
     loading={loading}
     decoding="async"
+    fetchpriority={loading === 'eager' ? 'high' : undefined}
     style={aspectRatio ? `aspect-ratio:${aspectRatio}` : ''}
   />
 ) : (

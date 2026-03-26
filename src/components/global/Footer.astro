@@ -76,13 +76,14 @@ const explore = [
         <p class="text-sm text-[var(--color-sand-dark)] mb-4">
           Get weekly Japanese recipes and cooking tips delivered to your inbox.
         </p>
-        <form class="flex gap-2">
+        <form class="flex gap-2" onsubmit="return false;">
           <input 
             type="email" 
+            aria-label="Email for newsletter"
             placeholder="your@email.com" 
             class="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[var(--color-terracotta)]"
           />
-          <button type="submit" class="px-4 py-2 bg-[var(--color-terracotta)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-terracotta-dark)] transition-colors">
+          <button type="submit" aria-label="Subscribe to newsletter" class="px-4 py-2 bg-[var(--color-terracotta)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-terracotta-dark)] transition-colors">
             Join
           </button>
         </form>

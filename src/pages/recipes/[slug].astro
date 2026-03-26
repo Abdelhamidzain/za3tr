@@ -82,7 +82,7 @@ const breadcrumbSchema = JSON.stringify({
 
         <!-- Author -->
         <div class="flex items-center gap-3 mt-4">
-          <img src={`${STORAGE}/persona/portrait.webp`} alt="Akemi Hayashi" class="w-10 h-10 rounded-full object-cover" loading="lazy" />
+          <img src={`${STORAGE}/persona/portrait.webp`} alt="Akemi Hayashi" class="w-10 h-10 rounded-full object-cover" loading="lazy" width="40" height="40" />
           <div>
             <a href="/about" class="text-sm font-semibold text-[var(--color-ink)] hover:text-[var(--color-terracotta)]">Akemi Hayashi</a>
             <p class="text-xs text-[var(--color-text-light)]">{recipe.published_at ? new Date(recipe.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</p>
@@ -100,8 +100,8 @@ const breadcrumbSchema = JSON.stringify({
         <!-- Action Buttons -->
         <div class="flex flex-wrap gap-3 mt-5 no-print">
           <a href="#recipe-card" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-terracotta)] text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">Jump to Recipe</a>
-          <button id="cook-mode-btn" style="background:white;border:1px solid #ddd;color:#333;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Cook Mode</button>
-          <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-[var(--color-border)] text-[var(--color-text-muted)] rounded-xl text-sm font-medium hover:bg-[var(--color-sand)] transition-colors no-print">Print</button>
+          <button id="cook-mode-btn" aria-label="Toggle cook mode" style="background:white;border:1px solid #ddd;color:#333;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Cook Mode</button>
+          <button onclick="window.print()" aria-label="Print recipe" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-[var(--color-border)] text-[var(--color-text-muted)] rounded-xl text-sm font-medium hover:bg-[var(--color-sand)] transition-colors no-print">Print</button>
         </div>
 
         <!-- Meta Bar -->
@@ -115,7 +115,7 @@ const breadcrumbSchema = JSON.stringify({
 
         <!-- Hero Image -->
         {recipe.hero_image_url && (
-          <div class="mt-8 rounded-2xl overflow-hidden aspect-video bg-[var(--color-sand)]">
+          <div class="mt-8 rounded-2xl overflow-hidden bg-[var(--color-sand)]" style="aspect-ratio:16/9">
             <ResponsiveImage src={recipe.hero_image_url} alt={`${targetKw} - ${recipe.title_en}`} class="w-full h-full object-cover" loading="eager" sizes="(max-width: 768px) 100vw, 800px" widths={[400, 800, 1200]} quality={80} />
           </div>
         )}
@@ -128,8 +128,8 @@ const breadcrumbSchema = JSON.stringify({
               <p class="text-xs text-[var(--color-text-muted)]">Get this recipe + weekly Japanese cooking tips</p>
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
-              <input type="email" id="email-input" placeholder="you@email.com" style="padding:8px 14px;border:1px solid #ddd;border-radius:10px;font-size:13px;flex:1;min-width:200px;outline:none;" />
-              <button id="email-submit-btn" onclick="subscribeEmail()" style="background:#B85C38;color:white;padding:8px 18px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Send</button>
+              <input type="email" id="email-input" aria-label="Email address" placeholder="you@email.com" style="padding:8px 14px;border:1px solid #ddd;border-radius:10px;font-size:13px;flex:1;min-width:200px;outline:none;" />
+              <button id="email-submit-btn" aria-label="Subscribe to newsletter" onclick="subscribeEmail()" style="background:#B85C38;color:white;padding:8px 18px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Send</button>
             </div>
           </div>
           <p id="email-msg" style="display:none;font-size:12px;margin-top:6px;"></p>
@@ -153,16 +153,16 @@ const breadcrumbSchema = JSON.stringify({
               <div class="flex items-center justify-between mb-2">
                 <h2 class="text-xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">Ingredients</h2>
                 <div class="flex gap-1 no-print">
-                  <button onclick="scaleIng(0.5,this)" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">½x</button>
-                  <button onclick="scaleIng(1,this)" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:none;background:#B85C38;color:white;cursor:pointer;">1x</button>
-                  <button onclick="scaleIng(2,this)" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">2x</button>
-                  <button onclick="scaleIng(3,this)" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">3x</button>
+                  <button onclick="scaleIng(0.5,this)" aria-label="Scale to half" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">½x</button>
+                  <button onclick="scaleIng(1,this)" aria-label="Original scale" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:none;background:#B85C38;color:white;cursor:pointer;">1x</button>
+                  <button onclick="scaleIng(2,this)" aria-label="Double scale" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">2x</button>
+                  <button onclick="scaleIng(3,this)" aria-label="Triple scale" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">3x</button>
                 </div>
               </div>
               <!-- US/Metric Toggle -->
               <div class="flex items-center gap-2 mb-3 no-print">
-                <button id="unit-us" onclick="toggleUnits('us')" style="padding:3px 10px;font-size:11px;border-radius:6px;border:none;background:#B85C38;color:white;cursor:pointer;font-weight:600;">US</button>
-                <button id="unit-metric" onclick="toggleUnits('metric')" style="padding:3px 10px;font-size:11px;border-radius:6px;border:1px solid #ddd;background:white;color:#666;cursor:pointer;font-weight:500;">Metric</button>
+                <button id="unit-us" aria-label="US measurements" onclick="toggleUnits('us')" style="padding:3px 10px;font-size:11px;border-radius:6px;border:none;background:#B85C38;color:white;cursor:pointer;font-weight:600;">US</button>
+                <button id="unit-metric" aria-label="Metric measurements" onclick="toggleUnits('metric')" style="padding:3px 10px;font-size:11px;border-radius:6px;border:1px solid #ddd;background:white;color:#666;cursor:pointer;font-weight:500;">Metric</button>
                 <span class="text-xs text-[var(--color-text-light)]" id="servings-display">Serves {recipe.servings || 4}</span>
               </div>
 
@@ -271,7 +271,7 @@ const breadcrumbSchema = JSON.stringify({
 
             <!-- Author Card -->
             <div class="mt-10 p-6 bg-[var(--color-sand)]/30 rounded-2xl border border-[var(--color-border-light)] flex gap-4 items-start">
-              <img src={`${STORAGE}/persona/portrait.webp`} alt="Akemi Hayashi" class="w-16 h-16 rounded-full object-cover shrink-0" loading="lazy" />
+              <img src={`${STORAGE}/persona/portrait.webp`} alt="Akemi Hayashi" class="w-16 h-16 rounded-full object-cover shrink-0" loading="lazy" width="64" height="64" />
               <div>
                 <a href="/about" class="text-base font-bold text-[var(--color-ink)] hover:text-[var(--color-terracotta)]">Akemi Hayashi</a>
                 <p class="text-xs text-[var(--color-text-light)] mb-2">林 明美 · Recipe Creator</p>
@@ -287,12 +287,12 @@ const breadcrumbSchema = JSON.stringify({
               <div class="bg-[var(--color-sand)]/30 rounded-2xl p-6 border border-[var(--color-border-light)] mb-8">
                 <h3 class="text-base font-bold text-[var(--color-ink)] mb-4">Leave a Review</h3>
                 <div class="space-y-4">
-                  <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Your Name</label><input type="text" id="review-name" placeholder="Your name" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;" /></div>
+                  <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Your Name</label><input type="text" id="review-name" aria-label="Your name" placeholder="Your name" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;" /></div>
                   <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Rating</label>
-                    <div class="flex gap-1" id="star-rating">{[1,2,3,4,5].map(s => (<button onclick={`setRating(${s})`} class="star-btn" style="background:none;border:none;cursor:pointer;padding:2px;"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>))}</div>
+                    <div class="flex gap-1" id="star-rating">{[1,2,3,4,5].map(s => (<button onclick={`setRating(${s})`} class="star-btn" aria-label="Rate" style="background:none;border:none;cursor:pointer;padding:2px;"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>))}</div>
                   </div>
-                  <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Comment (optional)</label><textarea id="review-comment" rows="3" placeholder="What did you think?" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;resize:vertical;"></textarea></div>
-                  <button onclick="submitReview()" style="background:#B85C38;color:white;padding:10px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Submit Review</button>
+                  <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Comment (optional)</label><textarea id="review-comment" aria-label="Review comment" rows="3" placeholder="What did you think?" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;resize:vertical;"></textarea></div>
+                  <button aria-label="Submit review" onclick="submitReview()" style="background:#B85C38;color:white;padding:10px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Submit Review</button>
                   <p id="review-msg" style="display:none;font-size:13px;margin-top:8px;"></p>
                 </div>
               </div>
