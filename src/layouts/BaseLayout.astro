@@ -54,8 +54,11 @@ const canonical = canonicalUrl || Astro.url.href;
   <meta name="twitter:image" content={ogImage} />
   
   <!-- Fonts: preconnect + async load (non-render-blocking) -->
+  <!-- Preconnect for faster resource loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://doswprgdalotithjdjkc.supabase.co" />
+  <link rel="dns-prefetch" href="https://doswprgdalotithjdjkc.supabase.co" />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
   <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet" /></noscript>

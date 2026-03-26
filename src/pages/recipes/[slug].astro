@@ -89,7 +89,7 @@ const breadcrumbSchema = JSON.stringify({
           </div>
           {recipe.avg_rating > 0 && (
             <div class="flex items-center gap-1 ml-auto">
-              {[1,2,3,4,5].map(s => (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={s <= Math.round(recipe.avg_rating) ? '#F59E0B' : 'none'} stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>))}
+              {[1,2,3,4,5].map(s => (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={s <= Math.round(recipe.avg_rating) ? '#B45309' : 'none'} stroke="#B45309" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>))}
               <span class="text-xs text-[var(--color-text-muted)] ml-1">{recipe.avg_rating} ({recipe.review_count})</span>
             </div>
           )}
@@ -234,12 +234,12 @@ const breadcrumbSchema = JSON.stringify({
 
             <!-- Tips -->
             {tips.length > 0 && (
-              <div class="mt-10 p-6 bg-[#FFF8E1] rounded-2xl border border-[#FFE082]">
-                <h3 class="text-base font-bold text-[#F57F17] mb-3">Pro Tips</h3>
+              <div class="mt-10 p-6 bg-[#FEF3C7] rounded-2xl border border-[#D97706]">
+                <h3 class="text-base font-bold text-[#B45309] mb-3">Pro Tips</h3>
                 <ul class="space-y-2">
                   {tips.map((tip: string) => (
                     <li class="flex items-start gap-2 text-sm text-[#5D4037]">
-                      <span class="mt-0.5 text-[#F57F17] shrink-0">*</span>
+                      <span class="mt-0.5 text-[#B45309] shrink-0">*</span>
                       <span>{tip}</span>
                     </li>
                   ))}
@@ -289,7 +289,7 @@ const breadcrumbSchema = JSON.stringify({
                 <div class="space-y-4">
                   <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Your Name</label><input type="text" id="review-name" aria-label="Your name" placeholder="Your name" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;" /></div>
                   <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Rating</label>
-                    <div class="flex gap-1" id="star-rating">{[1,2,3,4,5].map(s => (<button onclick={`setRating(${s})`} class="star-btn" aria-label="Rate" style="background:none;border:none;cursor:pointer;padding:2px;"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>))}</div>
+                    <div class="flex gap-1" id="star-rating">{[1,2,3,4,5].map(s => (<button onclick={`setRating(${s})`} class="star-btn" aria-label="Rate" style="background:none;border:none;cursor:pointer;padding:2px;"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>))}</div>
                   </div>
                   <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Comment (optional)</label><textarea id="review-comment" aria-label="Review comment" rows="3" placeholder="What did you think?" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;resize:vertical;"></textarea></div>
                   <button aria-label="Submit review" onclick="submitReview()" style="background:#B85C38;color:white;padding:10px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Submit Review</button>
@@ -304,7 +304,7 @@ const breadcrumbSchema = JSON.stringify({
                       <span class="text-sm font-semibold text-[var(--color-ink)]">{r.author_name}</span>
                       <span class="text-xs text-[var(--color-text-light)]">{new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
-                    <div class="flex mb-2">{[1,2,3,4,5].map(s => (<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={s <= r.rating ? '#F59E0B' : 'none'} stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>))}</div>
+                    <div class="flex mb-2">{[1,2,3,4,5].map(s => (<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={s <= r.rating ? '#B45309' : 'none'} stroke="#B45309" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>))}</div>
                     {r.comment && <p class="text-sm text-[var(--color-text)] leading-relaxed">{r.comment}</p>}
                   </div>
                 ))}</div>
@@ -392,7 +392,7 @@ const breadcrumbSchema = JSON.stringify({
 
     // Reviews
     let selectedRating = 0;
-    window.setRating = function(s) { selectedRating = s; document.querySelectorAll('.star-btn svg').forEach((svg,i) => svg.setAttribute('fill', i<s?'#F59E0B':'none')); };
+    window.setRating = function(s) { selectedRating = s; document.querySelectorAll('.star-btn svg').forEach((svg,i) => svg.setAttribute('fill', i<s?'#B45309':'none')); };
     window.submitReview = async function() {
       const name = document.getElementById('review-name').value.trim();
       const comment = document.getElementById('review-comment').value.trim();
