@@ -26,6 +26,17 @@ try {
 
 const steps = recipe.content_en?.split('\n').filter((s: string) => s.trim()) || [];
 const stepImages: any[] = recipe.step_images || [];
+// Build a map: step number (1-indexed) → image URL
+const stepImageMap: Record<number, string> = {};
+for (const si of stepImages) {
+  if (typeof si === 'string') {
+    // Simple string URL format — use array index
+    stepImageMap[stepImages.indexOf(si) + 1] = si;
+  } else if (si && si.url) {
+    // Object format {url, step}
+    stepImageMap[si.step || (stepImages.indexOf(si) + 1)] = si.url;
+  }
+}
 const targetKw = recipe.target_keyword_en || recipe.title_en;
 const serveWith: string[] = recipe.serve_with || [];
 const tips: string[] = recipe.tips || [];
@@ -193,7 +204,7 @@ const breadcrumbSchema = JSON.stringify({
 
             <ol class="space-y-8">
               {steps.map((step: string, i: number) => {
-                const stepImg = stepImages[i];
+                const stepImg = stepImageMap[i + 1];
                 const imgAlt = `${targetKw} step ${i + 1}: ${step.substring(0, 80).replace(/[.!?].*$/, '')}`;
                 return (
                   <li class="flex gap-4">
