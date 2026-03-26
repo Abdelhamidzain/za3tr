@@ -133,7 +133,7 @@ const categories = [
         if (data.length > 0) {
           searchResults.innerHTML = data.map(r =>
             `<a href="/recipes/${r.slug}" style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;text-decoration:none;color:inherit;" onmouseover="this.style.background='#f5f0eb'" onmouseout="this.style.background='transparent'">
-              ${r.hero_image_url ? `<img src="${r.hero_image_url}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" />` : ''}
+              ${r.hero_image_url ? `<img src="${r.hero_image_url}" alt="recipe" width="40" height="40" style="border-radius:6px;object-fit:cover;" />` : ''}
               <div><div style="font-size:13px;font-weight:600;color:#333;">${r.title_en}</div>${r.title_jp ? `<div style="font-size:11px;color:#666;">${r.title_jp}</div>` : ''}</div>
             </a>`
           ).join('');
