@@ -1,17 +1,30 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import RecipeCard from '../components/recipe/RecipeCard.astro';
-import { getPublishedRecipes, getCategoriesWithCounts } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 let recipes: any[] = [];
 let categories: Record<string, number> = {};
 
 try {
-  recipes = await getPublishedRecipes(12) || [];
-  categories = await getCategoriesWithCounts() || {};
-} catch (e) {
-  // Supabase not configured yet — show placeholder
-}
+  // Run both queries in parallel + select only needed columns
+  const [recipesRes, catRes] = await Promise.all([
+    supabase
+      .from('recipes')
+      .select('slug, title_en, title_jp, hero_image_url, category, difficulty, total_time, avg_rating, review_count')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false })
+      .limit(12),
+    supabase
+      .from('recipes')
+      .select('category')
+      .eq('status', 'published')
+  ]);
+  
+  recipes = recipesRes.data || [];
+  const catData = catRes.data || [];
+  catData.forEach((r: any) => { if (r.category) categories[r.category] = (categories[r.category] || 0) + 1; });
+} catch (e) {}
 
 const categoryData = [
   { name: 'Ramen', slug: 'ramen', emoji: '🍜', image: '/images/cat-ramen.jpg', desc: 'Rich broths & handmade noodles' },
@@ -24,21 +37,9 @@ const categoryData = [
   { name: 'Appetizers', slug: 'appetizers', emoji: '🥟', image: '/images/cat-appetizers.jpg', desc: 'Gyoza, edamame & izakaya bites' },
 ];
 
-const websiteSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Za3tr — Japanese Recipes",
-  "url": "https://za3tr.com",
-  "description": "Authentic Japanese recipes made simple. Master ramen, sushi, tempura and more at home.",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://za3tr.com/search?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  }
-};
 ---
 
-<BaseLayout title="Home" schema={websiteSchema}>
+<BaseLayout title="Home">
 
   <!-- ===== HERO SECTION ===== -->
   <section class="relative overflow-hidden bg-gradient-to-br from-[var(--color-cream)] via-[var(--color-sand)] to-[var(--color-cream-dark)]">
