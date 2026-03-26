@@ -1,118 +1,91 @@
 ---
-const categories = [
-  { name: 'Ramen', slug: 'ramen', emoji: '🍜' },
-  { name: 'Sushi', slug: 'sushi', emoji: '🍣' },
-  { name: 'Tempura', slug: 'tempura', emoji: '🍤' },
-  { name: 'Donburi', slug: 'donburi', emoji: '🍚' },
-  { name: 'Curry', slug: 'curry', emoji: '🍛' },
-  { name: 'Noodles', slug: 'noodles', emoji: '🍝' },
-  { name: 'Desserts', slug: 'desserts', emoji: '🍡' },
-];
-
 const currentPath = Astro.url.pathname;
+const categories = [
+  { name: 'Ramen', slug: 'ramen' }, { name: 'Sushi', slug: 'sushi' }, { name: 'Tempura', slug: 'tempura' },
+  { name: 'Donburi', slug: 'donburi' }, { name: 'Curry', slug: 'curry' }, { name: 'Noodles', slug: 'noodles' },
+  { name: 'Desserts', slug: 'desserts' }, { name: 'Appetizers', slug: 'appetizers' }, { name: 'Side Dish', slug: 'side-dish' },
+  { name: 'Soup', slug: 'soup' }, { name: 'Rice', slug: 'rice' }, { name: 'Drinks', slug: 'drinks' },
+];
 ---
 
-<header class="sticky top-0 z-50 bg-[var(--color-cream)]/95 backdrop-blur-md border-b border-[var(--color-border-light)]">
-  <!-- Top Bar -->
-  <div class="container flex items-center justify-between py-4">
-    <!-- Logo -->
-    <a href="/" class="flex items-center gap-3 group">
-      <div class="w-10 h-10 rounded-full bg-[var(--color-terracotta)] flex items-center justify-center text-white font-bold text-lg font-[family-name:var(--font-display)]">
-        Z
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[var(--color-border-light)]">
+  <div class="container">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2 group shrink-0">
+        <div class="w-9 h-9 rounded-full bg-[var(--color-terracotta)] flex items-center justify-center text-white font-bold text-base font-[family-name:var(--font-display)]">Z</div>
+        <div>
+          <span class="text-lg font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] tracking-tight group-hover:text-[var(--color-terracotta)] transition-colors">Za3tr</span>
+          <span class="hidden sm:block text-[10px] text-[var(--color-text-muted)] tracking-widest uppercase -mt-0.5">Japanese Recipes</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden lg:flex items-center gap-1">
+        <!-- Recipes Mega Menu -->
+        <div class="relative group">
+          <a href="/recipes" class="px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-terracotta)] transition-colors">Recipes</a>
+          <div class="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <div class="bg-white rounded-xl shadow-lg border border-[var(--color-border-light)] p-4 w-[420px]">
+              <p class="text-xs text-[var(--color-text-light)] uppercase tracking-wider font-medium mb-2">By Category</p>
+              <div class="grid grid-cols-3 gap-1">
+                {categories.map(c => (
+                  <a href={`/recipes/?category=${c.slug}`} class="px-3 py-2 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-sand)] hover:text-[var(--color-terracotta)] rounded-lg transition-colors">{c.name}</a>
+                ))}
+              </div>
+              <div class="mt-3 pt-3 border-t border-[var(--color-border-light)]">
+                <a href="/recipes" class="text-sm font-medium text-[var(--color-terracotta)] hover:underline">View All Recipes →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a href="/ingredients" class:list={["px-3 py-2 text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath.startsWith('/ingredients') ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>Ingredients</a>
+        <a href="/start-here" class:list={["px-3 py-2 text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath === '/start-here' ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>Start Here</a>
+        <a href="/about" class:list={["px-3 py-2 text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath === '/about' ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>About</a>
+      </nav>
+
+      <!-- Search + Mobile -->
+      <div class="flex items-center gap-2">
+        <!-- Search -->
+        <div class="relative" id="search-container">
+          <button id="search-toggle" class="p-2 rounded-lg hover:bg-[var(--color-sand)] transition-colors" aria-label="Search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+          <div id="search-dropdown" style="display:none;position:absolute;right:0;top:100%;margin-top:8px;width:320px;background:white;border-radius:12px;border:1px solid #eee;box-shadow:0 8px 30px rgba(0,0,0,0.12);padding:12px;z-index:100;">
+            <input type="text" id="search-input" placeholder="Search recipes, ingredients..." style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;" />
+            <div id="search-results" style="margin-top:8px;max-height:300px;overflow-y:auto;"></div>
+          </div>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-toggle" class="lg:hidden p-2 rounded-lg hover:bg-[var(--color-sand)] transition-colors" aria-label="Menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
       </div>
-      <div>
-        <span class="text-xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] tracking-tight group-hover:text-[var(--color-terracotta)] transition-colors">
-          Za3tr
-        </span>
-        <span class="hidden sm:block text-xs text-[var(--color-text-muted)] tracking-widest uppercase">
-          Japanese Recipes
-        </span>
-      </div>
-    </a>
-
-    <!-- Desktop Nav -->
-    <nav class="hidden lg:flex items-center gap-6">
-      <a href="/recipes" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath === '/recipes' ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
-        All Recipes
-      </a>
-      <a href="/ingredients" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath === '/ingredients' ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
-        Ingredients
-      </a>
-      <a href="/techniques" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath.startsWith('/techniques') ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
-        Techniques
-      </a>
-      <a href="/culture" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath.startsWith('/culture') ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
-        Culture
-      </a>
-      <a href="/about" class:list={["text-sm font-medium transition-colors hover:text-[var(--color-terracotta)]", currentPath === '/about' ? 'text-[var(--color-terracotta)]' : 'text-[var(--color-text-muted)]']}>
-        About
-      </a>
-    </nav>
-
-    <!-- Search + Language -->
-    <div class="flex items-center gap-3">
-      <!-- Search Button -->
-      <button id="search-toggle" class="p-2 rounded-lg hover:bg-[var(--color-sand)] transition-colors" aria-label="Search">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.3-4.3"></path>
-        </svg>
-      </button>
-
-      <!-- Mobile Menu Button -->
-      <button id="mobile-menu-toggle" class="lg:hidden p-2 rounded-lg hover:bg-[var(--color-sand)] transition-colors" aria-label="Menu">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="4" x2="20" y1="12" y2="12"></line>
-          <line x1="4" x2="20" y1="6" y2="6"></line>
-          <line x1="4" x2="20" y1="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Category Bar -->
-  <div class="border-t border-[var(--color-border-light)] overflow-x-auto no-print">
-    <div class="container flex items-center gap-1 py-2">
-      {categories.map(cat => (
-        <a 
-          href={`/recipes?category=${cat.slug}`}
-          class:list={[
-            "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all",
-            currentPath.includes(cat.slug) 
-              ? "bg-[var(--color-terracotta)] text-white" 
-              : "text-[var(--color-text-muted)] hover:bg-[var(--color-sand)] hover:text-[var(--color-ink)]"
-          ]}
-        >
-          <span class="text-base">{cat.emoji}</span>
-          <span class="font-medium">{cat.name}</span>
-        </a>
-      ))}
     </div>
   </div>
 </header>
 
-<!-- Mobile Menu Overlay -->
-<div id="mobile-menu" class="fixed inset-0 z-[60] bg-[var(--color-cream)] transform translate-x-full transition-transform duration-300 lg:hidden">
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-[60] transform translate-x-full transition-transform duration-300 lg:hidden">
   <div class="p-6">
-    <button id="mobile-menu-close" class="absolute top-4 right-4 p-2" aria-label="Close menu">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </button>
-    
-    <nav class="mt-12 space-y-1">
-      <a href="/recipes" class="block px-4 py-3 text-lg font-medium rounded-lg hover:bg-[var(--color-sand)]">All Recipes</a>
-      <a href="/ingredients" class="block px-4 py-3 text-lg font-medium rounded-lg hover:bg-[var(--color-sand)]">Ingredients</a>
-      <a href="/techniques" class="block px-4 py-3 text-lg font-medium rounded-lg hover:bg-[var(--color-sand)]">Techniques</a>
-      <a href="/culture" class="block px-4 py-3 text-lg font-medium rounded-lg hover:bg-[var(--color-sand)]">Culture</a>
-      
-      <div class="pt-4 border-t border-[var(--color-border)]">
-        <p class="px-4 py-2 text-xs uppercase tracking-widest text-[var(--color-text-light)]">Categories</p>
-        {categories.map(cat => (
-          <a href={`/recipes?category=${cat.slug}`} class="flex items-center gap-2 px-4 py-2.5 rounded-lg hover:bg-[var(--color-sand)]">
-            <span>{cat.emoji}</span>
-            <span>{cat.name}</span>
-          </a>
+    <div class="flex items-center justify-between mb-8">
+      <span class="text-lg font-bold font-[family-name:var(--font-display)]">Menu</span>
+      <button id="mobile-menu-close" class="p-2 rounded-lg hover:bg-[var(--color-sand)]">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <nav class="space-y-1">
+      <a href="/recipes" class="block px-4 py-3 text-base font-medium text-[var(--color-ink)] rounded-lg hover:bg-[var(--color-sand)]">All Recipes</a>
+      <div class="pl-4 space-y-0.5">
+        {categories.slice(0, 8).map(c => (
+          <a href={`/recipes/?category=${c.slug}`} class="block px-4 py-2 text-sm text-[var(--color-text-muted)] rounded-lg hover:bg-[var(--color-sand)]">{c.name}</a>
         ))}
       </div>
+      <a href="/ingredients" class="block px-4 py-3 text-base font-medium text-[var(--color-ink)] rounded-lg hover:bg-[var(--color-sand)]">Ingredients</a>
+      <a href="/start-here" class="block px-4 py-3 text-base font-medium text-[var(--color-ink)] rounded-lg hover:bg-[var(--color-sand)]">Start Here</a>
+      <a href="/about" class="block px-4 py-3 text-base font-medium text-[var(--color-ink)] rounded-lg hover:bg-[var(--color-sand)]">About</a>
     </nav>
   </div>
 </div>
@@ -121,12 +94,53 @@ const currentPath = Astro.url.pathname;
   const menuToggle = document.getElementById('mobile-menu-toggle');
   const menuClose = document.getElementById('mobile-menu-close');
   const mobileMenu = document.getElementById('mobile-menu');
+  menuToggle?.addEventListener('click', () => mobileMenu?.classList.remove('translate-x-full'));
+  menuClose?.addEventListener('click', () => mobileMenu?.classList.add('translate-x-full'));
 
-  menuToggle?.addEventListener('click', () => {
-    mobileMenu?.classList.remove('translate-x-full');
+  // Search
+  const searchToggle = document.getElementById('search-toggle');
+  const searchDropdown = document.getElementById('search-dropdown');
+  const searchInput = document.getElementById('search-input');
+  const searchResults = document.getElementById('search-results');
+  let searchOpen = false;
+
+  searchToggle?.addEventListener('click', () => {
+    searchOpen = !searchOpen;
+    searchDropdown.style.display = searchOpen ? 'block' : 'none';
+    if (searchOpen) searchInput?.focus();
   });
-  
-  menuClose?.addEventListener('click', () => {
-    mobileMenu?.classList.add('translate-x-full');
+
+  document.addEventListener('click', (e) => {
+    if (searchOpen && !document.getElementById('search-container')?.contains(e.target)) {
+      searchOpen = false;
+      searchDropdown.style.display = 'none';
+    }
+  });
+
+  let searchTimeout;
+  searchInput?.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    const q = e.target.value.trim();
+    if (q.length < 2) { searchResults.innerHTML = ''; return; }
+    searchTimeout = setTimeout(async () => {
+      try {
+        const url = 'https://doswprgdalotithjdjkc.supabase.co';
+        const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvc3dwcmdkYWxvdGl0aGpkamtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjA4NjUsImV4cCI6MjA5MDAzNjg2NX0.dS1MZ_YV7Yi5JpQ67pIRgYDGXTESBxT1_Js3BMx7C8Y';
+        const res = await fetch(`${url}/rest/v1/recipes?select=slug,title_en,title_jp,category,hero_image_url&status=eq.published&or=(title_en.ilike.*${q}*,title_jp.ilike.*${q}*,target_keyword_en.ilike.*${q}*,category.ilike.*${q}*)&limit=5`, {
+          headers: { 'apikey': key, 'Authorization': 'Bearer ' + key }
+        });
+        const data = await res.json();
+        if (data.length > 0) {
+          searchResults.innerHTML = data.map(r =>
+            `<a href="/recipes/${r.slug}" style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;text-decoration:none;color:inherit;" onmouseover="this.style.background='#f5f0eb'" onmouseout="this.style.background='transparent'">
+              ${r.hero_image_url ? `<img src="${r.hero_image_url}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;" />` : ''}
+              <div><div style="font-size:13px;font-weight:600;color:#333;">${r.title_en}</div>${r.title_jp ? `<div style="font-size:11px;color:#999;">${r.title_jp}</div>` : ''}</div>
+            </a>`
+          ).join('');
+        } else {
+          searchResults.innerHTML = '<p style="text-align:center;color:#999;font-size:13px;padding:12px;">No results found</p>';
+        }
+      } catch (e) { searchResults.innerHTML = ''; }
+    }, 300);
   });
 </script>

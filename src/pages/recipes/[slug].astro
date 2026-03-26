@@ -1,76 +1,56 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import RecipeSchema from '../../components/seo/RecipeSchema.astro';
-import FAQSchema from '../../components/seo/FAQSchema.astro';
+import RecipeCard from '../../components/recipe/RecipeCard.astro';
 import { supabase } from '../../lib/supabase';
 
 const { slug } = Astro.params;
 const STORAGE = 'https://doswprgdalotithjdjkc.supabase.co/storage/v1/object/public/images';
 
-// Fetch recipe with ingredients
 let recipe: any = null;
 let ingredients: any[] = [];
+let related: any[] = [];
 
 try {
-  const { data } = await supabase
-    .rpc('get_recipe_with_ingredients', { recipe_slug: slug! });
-  if (data) {
-    recipe = data.recipe;
-    ingredients = data.ingredients || [];
-  }
+  const { data } = await supabase.rpc('get_recipe_with_ingredients', { recipe_slug: slug! });
+  if (data) { recipe = data.recipe; ingredients = data.ingredients || []; related = data.related || []; }
 } catch (e) {}
 
-if (!recipe) {
-  return Astro.redirect('/404');
-}
+if (!recipe) return Astro.redirect('/404');
 
-// Fetch reviews
 let reviews: any[] = [];
 try {
-  const { data } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('recipe_id', recipe.id)
-    .eq('is_approved', true)
-    .order('created_at', { ascending: false })
-    .limit(20);
+  const { data } = await supabase.from('reviews').select('*').eq('recipe_id', recipe.id).eq('is_approved', true).order('created_at', { ascending: false }).limit(20);
   reviews = data || [];
 } catch (e) {}
 
-// Parse steps and step images
 const steps = recipe.content_en?.split('\n').filter((s: string) => s.trim()) || [];
 const stepImages: any[] = recipe.step_images || [];
 const targetKw = recipe.target_keyword_en || recipe.title_en;
+const serveWith: string[] = recipe.serve_with || [];
+const tips: string[] = recipe.tips || [];
 
-// Difficulty styling
-const diffColors: Record<string, string> = {
+const diffStyle: Record<string, string> = {
   beginner: 'background:#E8F5E9;color:#2E7D32',
   intermediate: 'background:#FFF3E0;color:#E65100',
   advanced: 'background:#FFEBEE;color:#C62828',
 };
+
+const breadcrumbSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://za3tr.pages.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Recipes", "item": "https://za3tr.pages.dev/recipes/" },
+    ...(recipe.category ? [{ "@type": "ListItem", "position": 3, "name": recipe.category, "item": `https://za3tr.pages.dev/recipes/?category=${recipe.category}` }] : []),
+    { "@type": "ListItem", "position": recipe.category ? 4 : 3, "name": recipe.title_en }
+  ]
+});
 ---
 
-<BaseLayout 
-  title={recipe.title_en}
-  description={recipe.meta_description_en || recipe.description_en || ''}
-  ogImage={recipe.hero_image_url}
->
-  <RecipeSchema
-    name={recipe.title_en}
-    description={recipe.description_en || ''}
-    image={recipe.hero_image_url || ''}
-    prepTime={recipe.prep_time || 0}
-    cookTime={recipe.cook_time || 0}
-    totalTime={recipe.total_time || 0}
-    servings={recipe.servings || 4}
-    category={recipe.category || 'Main Dish'}
-    calories={recipe.calories}
-    ingredients={ingredients.map((i: any) => ({
-      amount: i.amount || '', unit: i.unit || '', name: i.ingredient?.name_en || ''
-    }))}
-    steps={steps}
-    slug={slug!}
-  />
+<BaseLayout title={recipe.meta_title_en || recipe.title_en} description={recipe.meta_description_en || recipe.description_en || ''} ogImage={recipe.hero_image_url}>
+  <RecipeSchema name={recipe.title_en} description={recipe.description_en || ''} image={recipe.hero_image_url || ''} prepTime={recipe.prep_time || 0} cookTime={recipe.cook_time || 0} totalTime={recipe.total_time || 0} servings={recipe.servings || 4} category={recipe.category || 'Main Dish'} calories={recipe.calories} ingredients={ingredients.map((i: any) => ({ amount: i.amount || '', unit: i.unit || '', name: i.ingredient?.name_en || '' }))} steps={steps} slug={slug!} />
+  <script type="application/ld+json" set:html={breadcrumbSchema} />
 
   <article class="py-8 md:py-12">
     <div class="container">
@@ -78,77 +58,47 @@ const diffColors: Record<string, string> = {
 
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-sm text-[var(--color-text-light)] mb-6">
-          <a href="/" class="hover:text-[var(--color-terracotta)]">Home</a>
-          <span>/</span>
+          <a href="/" class="hover:text-[var(--color-terracotta)]">Home</a><span>/</span>
           <a href="/recipes" class="hover:text-[var(--color-terracotta)]">Recipes</a>
-          {recipe.category && (
-            <>
-              <span>/</span>
-              <a href={`/recipes/?category=${recipe.category}`} class="hover:text-[var(--color-terracotta)] capitalize">{recipe.category}</a>
-            </>
-          )}
-          <span>/</span>
-          <span class="text-[var(--color-text-muted)]">{recipe.title_en}</span>
+          {recipe.category && (<><span>/</span><a href={`/recipes/?category=${recipe.category}`} class="hover:text-[var(--color-terracotta)] capitalize">{recipe.category}</a></>)}
+          <span>/</span><span class="text-[var(--color-text-muted)]">{recipe.title_en}</span>
         </nav>
 
         <!-- Title -->
-        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] leading-tight">
-          {recipe.title_en}
-        </h1>
-        {recipe.title_jp && (
-          <p class="text-lg text-[var(--color-text-muted)] mt-1 text-jp">{recipe.title_jp}</p>
-        )}
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] leading-tight">{recipe.title_en}</h1>
+        {recipe.title_jp && <p class="text-lg text-[var(--color-text-muted)] mt-1">{recipe.title_jp}</p>}
 
         <!-- Author -->
         <div class="flex items-center gap-3 mt-4">
           <img src={`${STORAGE}/persona/portrait.webp`} alt="Akemi Hayashi" class="w-10 h-10 rounded-full object-cover" loading="lazy" />
           <div>
             <a href="/about" class="text-sm font-semibold text-[var(--color-ink)] hover:text-[var(--color-terracotta)]">Akemi Hayashi</a>
-            <p class="text-xs text-[var(--color-text-light)]">
-              {recipe.published_at ? new Date(recipe.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}
-            </p>
+            <p class="text-xs text-[var(--color-text-light)]">{recipe.published_at ? new Date(recipe.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</p>
           </div>
+          {recipe.avg_rating > 0 && (
+            <div class="flex items-center gap-1 ml-auto">
+              {[1,2,3,4,5].map(s => (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={s <= Math.round(recipe.avg_rating) ? '#F59E0B' : 'none'} stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>))}
+              <span class="text-xs text-[var(--color-text-muted)] ml-1">{recipe.avg_rating} ({recipe.review_count})</span>
+            </div>
+          )}
         </div>
 
-        {recipe.description_en && (
-          <p class="text-lg text-[var(--color-text-muted)] mt-4 leading-relaxed">{recipe.description_en}</p>
-        )}
+        {recipe.description_en && <p class="text-lg text-[var(--color-text-muted)] mt-4 leading-relaxed">{recipe.description_en}</p>}
 
-        <!-- Jump to Recipe + Cook Mode -->
+        <!-- Action Buttons -->
         <div class="flex flex-wrap gap-3 mt-5 no-print">
-          <a href="#recipe-card" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-terracotta)] text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-            Jump to Recipe
-          </a>
-          <button id="cook-mode-btn" style="background:white;border:1px solid #ddd;color:#333;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;">
-            🍳 Cook Mode
-          </button>
+          <a href="#recipe-card" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-terracotta)] text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">Jump to Recipe</a>
+          <button id="cook-mode-btn" style="background:white;border:1px solid #ddd;color:#333;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Cook Mode</button>
+          <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-[var(--color-border)] text-[var(--color-text-muted)] rounded-xl text-sm font-medium hover:bg-[var(--color-sand)] transition-colors no-print">Print</button>
         </div>
 
         <!-- Meta Bar -->
         <div class="flex flex-wrap items-center gap-4 mt-6 py-4 border-y border-[var(--color-border-light)]">
-          {recipe.difficulty && (
-            <span style={diffColors[recipe.difficulty] || ''} class="px-3 py-1 rounded-full text-xs font-semibold uppercase">{recipe.difficulty}</span>
-          )}
-          {recipe.prep_time && (
-            <div class="flex items-center gap-1.5 text-sm text-[var(--color-text-muted)]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              Prep: {recipe.prep_time}min
-            </div>
-          )}
-          {recipe.cook_time && (
-            <span class="text-sm text-[var(--color-text-muted)]">Cook: {recipe.cook_time}min</span>
-          )}
-          {recipe.total_time && (
-            <span class="text-sm font-medium text-[var(--color-ink)]">Total: {recipe.total_time}min</span>
-          )}
-          {recipe.servings && (
-            <span class="text-sm text-[var(--color-text-muted)]">Serves {recipe.servings}</span>
-          )}
-          <button onclick="window.print()" class="ml-auto flex items-center gap-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-terracotta)] no-print">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
-            Print
-          </button>
+          {recipe.difficulty && <span style={diffStyle[recipe.difficulty] || ''} class="px-3 py-1 rounded-full text-xs font-semibold uppercase">{recipe.difficulty}</span>}
+          {recipe.prep_time && <span class="text-sm text-[var(--color-text-muted)]">Prep: {recipe.prep_time}min</span>}
+          {recipe.cook_time && <span class="text-sm text-[var(--color-text-muted)]">Cook: {recipe.cook_time}min</span>}
+          {recipe.total_time && <span class="text-sm font-medium text-[var(--color-ink)]">Total: {recipe.total_time}min</span>}
+          {recipe.servings && <span class="text-sm text-[var(--color-text-muted)]" id="servings-meta">Serves {recipe.servings}</span>}
         </div>
 
         <!-- Hero Image -->
@@ -158,34 +108,61 @@ const diffColors: Record<string, string> = {
           </div>
         )}
 
+        <!-- Email Capture Inline -->
+        <div class="mt-6 p-5 bg-[var(--color-sand)]/40 rounded-xl border border-[var(--color-border-light)] no-print" id="email-capture">
+          <div class="flex flex-col sm:flex-row gap-3 items-center">
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-[var(--color-ink)]">Email me this recipe</p>
+              <p class="text-xs text-[var(--color-text-muted)]">Get this recipe + weekly Japanese cooking tips</p>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+              <input type="email" id="email-input" placeholder="you@email.com" style="padding:8px 14px;border:1px solid #ddd;border-radius:10px;font-size:13px;flex:1;min-width:200px;outline:none;" />
+              <button id="email-submit-btn" onclick="subscribeEmail()" style="background:#B85C38;color:white;padding:8px 18px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Send</button>
+            </div>
+          </div>
+          <p id="email-msg" style="display:none;font-size:12px;margin-top:6px;"></p>
+        </div>
+
+        <!-- Cultural Context -->
+        {recipe.cultural_context && (
+          <div class="mt-8 p-6 bg-white rounded-2xl border border-[var(--color-border-light)]">
+            <h2 class="text-lg font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-3">The Story Behind This Dish</h2>
+            <p class="text-sm text-[var(--color-text)] leading-relaxed">{recipe.cultural_context}</p>
+            {recipe.proof_source && <p class="text-xs text-[var(--color-text-light)] mt-3 italic">{recipe.proof_source}</p>}
+          </div>
+        )}
+
         <!-- Two Column: Ingredients + Steps -->
         <div class="mt-10 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-10">
 
-          <!-- Ingredients -->
+          <!-- Ingredients Sidebar -->
           <aside id="recipe-card" class="lg:sticky lg:top-28 lg:self-start">
             <div class="bg-[var(--color-sand)]/40 rounded-2xl p-6 border border-[var(--color-border-light)]">
-              <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center justify-between mb-2">
                 <h2 class="text-xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">Ingredients</h2>
-                <div class="flex gap-1 no-print" id="scale-buttons">
-                  <button onclick="scaleIngredients(0.5, this)" class="scale-btn" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">½x</button>
-                  <button onclick="scaleIngredients(1, this)" class="scale-btn" style="padding:4px 10px;font-size:12px;border-radius:8px;border:none;background:#B85C38;color:white;cursor:pointer;">1x</button>
-                  <button onclick="scaleIngredients(2, this)" class="scale-btn" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">2x</button>
-                  <button onclick="scaleIngredients(3, this)" class="scale-btn" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">3x</button>
+                <div class="flex gap-1 no-print">
+                  <button onclick="scaleIng(0.5,this)" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">½x</button>
+                  <button onclick="scaleIng(1,this)" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:none;background:#B85C38;color:white;cursor:pointer;">1x</button>
+                  <button onclick="scaleIng(2,this)" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">2x</button>
+                  <button onclick="scaleIng(3,this)" class="sc" style="padding:4px 10px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:white;cursor:pointer;">3x</button>
                 </div>
               </div>
-              <p class="text-xs text-[var(--color-text-light)] mb-3" id="servings-display">Serves {recipe.servings || 4}</p>
+              <!-- US/Metric Toggle -->
+              <div class="flex items-center gap-2 mb-3 no-print">
+                <button id="unit-us" onclick="toggleUnits('us')" style="padding:3px 10px;font-size:11px;border-radius:6px;border:none;background:#B85C38;color:white;cursor:pointer;font-weight:600;">US</button>
+                <button id="unit-metric" onclick="toggleUnits('metric')" style="padding:3px 10px;font-size:11px;border-radius:6px;border:1px solid #ddd;background:white;color:#666;cursor:pointer;font-weight:500;">Metric</button>
+                <span class="text-xs text-[var(--color-text-light)]" id="servings-display">Serves {recipe.servings || 4}</span>
+              </div>
 
-              <ul class="space-y-3" id="ingredient-list">
+              <ul class="space-y-3">
                 {ingredients.map((item: any) => (
                   <li class="flex items-start gap-2">
                     <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-terracotta)] mt-2 shrink-0"></span>
                     <span class="text-sm text-[var(--color-text)]">
-                      {item.amount && <strong class="font-medium ingredient-amount" data-base-amount={item.amount}>{item.amount} {item.unit}</strong>}
+                      {item.amount && <strong class="font-medium ingredient-amount" data-base-amount={item.amount} data-unit={item.unit}>{item.amount} {item.unit}</strong>}
                       {' '}
                       {item.ingredient?.slug ? (
-                        <a href={`/ingredients/${item.ingredient.slug}`} class="text-[var(--color-terracotta)] hover:underline">
-                          {item.ingredient.name_en}
-                        </a>
+                        <a href={`/ingredients/${item.ingredient.slug}`} class="text-[var(--color-terracotta)] hover:underline">{item.ingredient.name_en}</a>
                       ) : item.ingredient?.name_en}
                       {item.ingredient?.name_jp && <span class="text-[var(--color-text-light)] text-xs ml-1">({item.ingredient.name_jp})</span>}
                       {item.notes && <span class="text-[var(--color-text-light)]"> — {item.notes}</span>}
@@ -199,60 +176,70 @@ const diffColors: Record<string, string> = {
             <!-- Nutrition -->
             {(recipe.calories || recipe.protein) && (
               <div class="mt-4 bg-white rounded-2xl p-6 border border-[var(--color-border-light)]">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink)] mb-3">Nutrition Facts</h3>
-                <p class="text-xs text-[var(--color-text-light)] mb-3">Per serving</p>
-                <div class="space-y-2">
-                  {recipe.calories && (
-                    <div class="flex justify-between text-sm"><span class="text-[var(--color-text-muted)]">Calories</span><span class="font-medium">{recipe.calories}</span></div>
-                  )}
-                  {recipe.protein && (
-                    <div class="flex justify-between text-sm"><span class="text-[var(--color-text-muted)]">Protein</span><span class="font-medium">{recipe.protein}g</span></div>
-                  )}
-                  {recipe.carbs && (
-                    <div class="flex justify-between text-sm"><span class="text-[var(--color-text-muted)]">Carbs</span><span class="font-medium">{recipe.carbs}g</span></div>
-                  )}
-                  {recipe.fat && (
-                    <div class="flex justify-between text-sm"><span class="text-[var(--color-text-muted)]">Fat</span><span class="font-medium">{recipe.fat}g</span></div>
-                  )}
+                <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink)] mb-3">Nutrition per serving</h3>
+                <div class="grid grid-cols-2 gap-3">
+                  {recipe.calories && <div class="text-center p-3 bg-[var(--color-sand)]/30 rounded-xl"><div class="text-lg font-bold text-[var(--color-ink)]">{recipe.calories}</div><div class="text-xs text-[var(--color-text-muted)]">Calories</div></div>}
+                  {recipe.protein && <div class="text-center p-3 bg-[var(--color-sand)]/30 rounded-xl"><div class="text-lg font-bold text-[var(--color-ink)]">{recipe.protein}g</div><div class="text-xs text-[var(--color-text-muted)]">Protein</div></div>}
+                  {recipe.carbs && <div class="text-center p-3 bg-[var(--color-sand)]/30 rounded-xl"><div class="text-lg font-bold text-[var(--color-ink)]">{recipe.carbs}g</div><div class="text-xs text-[var(--color-text-muted)]">Carbs</div></div>}
+                  {recipe.fat && <div class="text-center p-3 bg-[var(--color-sand)]/30 rounded-xl"><div class="text-lg font-bold text-[var(--color-ink)]">{recipe.fat}g</div><div class="text-xs text-[var(--color-text-muted)]">Fat</div></div>}
                 </div>
               </div>
             )}
           </aside>
 
-          <!-- Instructions -->
+          <!-- Instructions Column -->
           <div>
             <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-6">Instructions</h2>
 
             <ol class="space-y-8">
               {steps.map((step: string, i: number) => {
                 const stepImg = stepImages[i];
-                const imgAlt = `${targetKw} - Step ${i + 1}: ${step.substring(0, 80).replace(/[.!?].*$/, '')}`;
+                const imgAlt = `${targetKw} step ${i + 1}: ${step.substring(0, 80).replace(/[.!?].*$/, '')}`;
                 return (
                   <li class="flex gap-4">
                     <div class="shrink-0 w-8 h-8 rounded-full bg-[var(--color-terracotta)] text-white flex items-center justify-center text-sm font-bold">{i + 1}</div>
                     <div class="flex-1 pt-1">
                       <p class="text-[var(--color-text)] leading-relaxed">{step}</p>
-                      {stepImg && (
-                        <div class="mt-4 rounded-xl overflow-hidden">
-                          <img src={stepImg} alt={imgAlt} class="w-full rounded-xl" loading="lazy" />
-                        </div>
-                      )}
+                      {stepImg && <div class="mt-3 rounded-xl overflow-hidden"><img src={stepImg} alt={imgAlt} class="w-full rounded-xl" loading="lazy" /></div>}
                     </div>
                   </li>
                 );
               })}
             </ol>
 
+            <!-- Tips -->
+            {tips.length > 0 && (
+              <div class="mt-10 p-6 bg-[#FFF8E1] rounded-2xl border border-[#FFE082]">
+                <h3 class="text-base font-bold text-[#F57F17] mb-3">Pro Tips</h3>
+                <ul class="space-y-2">
+                  {tips.map((tip: string) => (
+                    <li class="flex items-start gap-2 text-sm text-[#5D4037]">
+                      <span class="mt-0.5 text-[#F57F17] shrink-0">*</span>
+                      <span>{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <!-- What to Serve With -->
+            {serveWith.length > 0 && (
+              <div class="mt-8 p-6 bg-white rounded-2xl border border-[var(--color-border-light)]">
+                <h3 class="text-base font-bold text-[var(--color-ink)] mb-3">What to Serve With This</h3>
+                <div class="flex flex-wrap gap-2">
+                  {serveWith.map((item: string) => (
+                    <span class="px-3 py-1.5 rounded-full text-sm bg-[var(--color-sand)] text-[var(--color-clay-dark)]">{item}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <!-- Tags -->
             {(recipe.cuisine_tags?.length > 0 || recipe.dietary_tags?.length > 0) && (
-              <div class="mt-10 pt-6 border-t border-[var(--color-border-light)]">
+              <div class="mt-8 pt-6 border-t border-[var(--color-border-light)]">
                 <div class="flex flex-wrap gap-2">
-                  {recipe.cuisine_tags?.map((tag: string) => (
-                    <span class="px-3 py-1 rounded-full text-xs bg-[var(--color-sand)] text-[var(--color-clay-dark)]">{tag}</span>
-                  ))}
-                  {recipe.dietary_tags?.map((tag: string) => (
-                    <span class="px-3 py-1 rounded-full text-xs" style="background:#E8F5E9;color:#2E7D32">{tag}</span>
-                  ))}
+                  {recipe.cuisine_tags?.map((tag: string) => (<span class="px-3 py-1 rounded-full text-xs bg-[var(--color-sand)] text-[var(--color-clay-dark)]">{tag}</span>))}
+                  {recipe.dietary_tags?.map((tag: string) => (<span class="px-3 py-1 rounded-full text-xs" style="background:#E8F5E9;color:#2E7D32">{tag}</span>))}
                 </div>
               </div>
             )}
@@ -263,208 +250,139 @@ const diffColors: Record<string, string> = {
               <div>
                 <a href="/about" class="text-base font-bold text-[var(--color-ink)] hover:text-[var(--color-terracotta)]">Akemi Hayashi</a>
                 <p class="text-xs text-[var(--color-text-light)] mb-2">林 明美 · Recipe Creator</p>
-                <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">Born in Yokohama, raised between Tokyo and San Francisco. I test every recipe in my own kitchen and share the techniques my grandmother taught me — because Japanese home cooking should be accessible to everyone.</p>
+                <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">Born in Yokohama, raised between Tokyo and San Francisco. I share the techniques my grandmother taught me — because Japanese home cooking should be accessible to everyone.</p>
               </div>
             </div>
 
             <!-- Reviews Section -->
             <div class="mt-12 pt-8 border-t border-[var(--color-border-light)]" id="reviews">
               <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">
-                  Reviews {reviews.length > 0 && <span class="text-lg font-normal text-[var(--color-text-muted)]">({reviews.length})</span>}
-                </h2>
-                {recipe.avg_rating > 0 && (
-                  <div class="flex items-center gap-2">
-                    <div class="flex">
-                      {[1,2,3,4,5].map(s => (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill={s <= Math.round(recipe.avg_rating) ? '#F59E0B' : 'none'} stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                      ))}
-                    </div>
-                    <span class="text-sm font-medium text-[var(--color-ink)]">{recipe.avg_rating}</span>
-                  </div>
-                )}
+                <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">Reviews {reviews.length > 0 && <span class="text-lg font-normal text-[var(--color-text-muted)]">({reviews.length})</span>}</h2>
               </div>
-
-              <!-- Review Form -->
-              <div class="bg-[var(--color-sand)]/30 rounded-2xl p-6 border border-[var(--color-border-light)] mb-8" id="review-form-container">
+              <div class="bg-[var(--color-sand)]/30 rounded-2xl p-6 border border-[var(--color-border-light)] mb-8">
                 <h3 class="text-base font-bold text-[var(--color-ink)] mb-4">Leave a Review</h3>
                 <div class="space-y-4">
-                  <div>
-                    <label class="text-sm text-[var(--color-text-muted)] block mb-1">Your Name</label>
-                    <input type="text" id="review-name" placeholder="Your name" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;" />
+                  <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Your Name</label><input type="text" id="review-name" placeholder="Your name" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;" /></div>
+                  <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Rating</label>
+                    <div class="flex gap-1" id="star-rating">{[1,2,3,4,5].map(s => (<button onclick={`setRating(${s})`} class="star-btn" style="background:none;border:none;cursor:pointer;padding:2px;"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>))}</div>
                   </div>
-                  <div>
-                    <label class="text-sm text-[var(--color-text-muted)] block mb-1">Rating</label>
-                    <div class="flex gap-1" id="star-rating">
-                      {[1,2,3,4,5].map(s => (
-                        <button onclick={`setRating(${s})`} class="star-btn" data-star={s} style="background:none;border:none;cursor:pointer;padding:2px;">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label class="text-sm text-[var(--color-text-muted)] block mb-1">Comment (optional)</label>
-                    <textarea id="review-comment" rows="3" placeholder="What did you think of this recipe?" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;resize:vertical;"></textarea>
-                  </div>
-                  <button id="submit-review-btn" onclick="submitReview()" style="background:#B85C38;color:white;padding:10px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">
-                    Submit Review
-                  </button>
-                  <p id="review-message" style="display:none;font-size:13px;margin-top:8px;"></p>
+                  <div><label class="text-sm text-[var(--color-text-muted)] block mb-1">Comment (optional)</label><textarea id="review-comment" rows="3" placeholder="What did you think?" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;outline:none;resize:vertical;"></textarea></div>
+                  <button onclick="submitReview()" style="background:#B85C38;color:white;padding:10px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Submit Review</button>
+                  <p id="review-msg" style="display:none;font-size:13px;margin-top:8px;"></p>
                 </div>
               </div>
-
-              <!-- Existing Reviews -->
               {reviews.length > 0 ? (
-                <div class="space-y-6">
-                  {reviews.map((r: any) => (
-                    <div class="pb-6 border-b border-[var(--color-border-light)] last:border-0">
-                      <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-full bg-[var(--color-sand)] flex items-center justify-center text-sm font-bold text-[var(--color-clay-dark)]">
-                          {r.author_name?.charAt(0)?.toUpperCase() || '?'}
-                        </div>
-                        <div>
-                          <span class="text-sm font-semibold text-[var(--color-ink)]">{r.author_name}</span>
-                          <span class="text-xs text-[var(--color-text-light)] ml-2">
-                            {new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </span>
-                        </div>
-                      </div>
-                      <div class="flex mb-2">
-                        {[1,2,3,4,5].map(s => (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={s <= r.rating ? '#F59E0B' : 'none'} stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        ))}
-                      </div>
-                      {r.comment && <p class="text-sm text-[var(--color-text)] leading-relaxed">{r.comment}</p>}
+                <div class="space-y-6">{reviews.map((r: any) => (
+                  <div class="pb-6 border-b border-[var(--color-border-light)] last:border-0">
+                    <div class="flex items-center gap-3 mb-2">
+                      <div class="w-8 h-8 rounded-full bg-[var(--color-sand)] flex items-center justify-center text-sm font-bold text-[var(--color-clay-dark)]">{r.author_name?.charAt(0)?.toUpperCase()}</div>
+                      <span class="text-sm font-semibold text-[var(--color-ink)]">{r.author_name}</span>
+                      <span class="text-xs text-[var(--color-text-light)]">{new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p class="text-sm text-[var(--color-text-muted)] text-center py-6">Be the first to review this recipe!</p>
-              )}
+                    <div class="flex mb-2">{[1,2,3,4,5].map(s => (<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={s <= r.rating ? '#F59E0B' : 'none'} stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>))}</div>
+                    {r.comment && <p class="text-sm text-[var(--color-text)] leading-relaxed">{r.comment}</p>}
+                  </div>
+                ))}</div>
+              ) : <p class="text-sm text-[var(--color-text-muted)] text-center py-6">Be the first to review this recipe!</p>}
             </div>
           </div>
         </div>
+
+        <!-- Related Recipes -->
+        {related.length > 0 && (
+          <div class="mt-16 pt-10 border-t border-[var(--color-border-light)]">
+            <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-6">More {recipe.category ? recipe.category.charAt(0).toUpperCase() + recipe.category.slice(1) : ''} Recipes</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {related.map((r: any) => (
+                <RecipeCard slug={r.slug} title={r.title_en} titleJp={r.title_jp} image={r.hero_image_url} category={r.category} difficulty={r.difficulty} totalTime={r.total_time} avgRating={r.avg_rating} reviewCount={r.review_count} />
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   </article>
 
-  <!-- Scripts -->
-  <script define:vars={{ baseServings: recipe.servings || 4, recipeId: recipe.id, supabaseUrl: 'https://doswprgdalotithjdjkc.supabase.co', anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvc3dwcmdkYWxvdGl0aGpkamtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjA4NjUsImV4cCI6MjA5MDAzNjg2NX0.dS1MZ_YV7Yi5JpQ67pIRgYDGXTESBxT1_Js3BMx7C8Y' }}>
-    // Ingredient Scaling
-    window.scaleIngredients = function(multiplier, clickedBtn) {
+  <script define:vars={{ baseServings: recipe.servings || 4, recipeId: recipe.id, recipeSlug: slug, supabaseUrl: 'https://doswprgdalotithjdjkc.supabase.co', anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvc3dwcmdkYWxvdGl0aGpkamtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjA4NjUsImV4cCI6MjA5MDAzNjg2NX0.dS1MZ_YV7Yi5JpQ67pIRgYDGXTESBxT1_Js3BMx7C8Y' }}>
+    // Scaling
+    window.scaleIng = function(m, btn) {
       document.querySelectorAll('.ingredient-amount').forEach(el => {
-        const base = parseFloat(el.dataset.baseAmount);
-        if (isNaN(base)) return;
-        const scaled = base * multiplier;
-        const display = scaled % 1 === 0 ? scaled.toString() : scaled.toFixed(1).replace(/\.0$/, '');
-        const unit = el.textContent.replace(/^[\d.\/½¼¾⅓⅔]+\s*/, '');
-        el.textContent = display + ' ' + unit;
+        const b = parseFloat(el.dataset.baseAmount); if (isNaN(b)) return;
+        const s = b * m;
+        const d = s % 1 === 0 ? s.toString() : s.toFixed(1).replace(/\.0$/, '');
+        const u = el.dataset.unit || '';
+        el.textContent = d + ' ' + u;
       });
       const sd = document.getElementById('servings-display');
-      if (sd) sd.textContent = 'Serves ' + Math.round(baseServings * multiplier);
-      document.querySelectorAll('.scale-btn').forEach(btn => {
-        btn.style.background = 'white';
-        btn.style.color = '#333';
-        btn.style.border = '1px solid #ddd';
+      if (sd) sd.textContent = 'Serves ' + Math.round(baseServings * m);
+      document.querySelectorAll('.sc').forEach(b => { b.style.background='white'; b.style.color='#333'; b.style.border='1px solid #ddd'; });
+      if (btn) { btn.style.background='#B85C38'; btn.style.color='white'; btn.style.border='none'; }
+    };
+
+    // US/Metric toggle
+    const conversions = { tbsp: {metric:'ml',factor:15}, tsp: {metric:'ml',factor:5}, cup: {metric:'ml',factor:240}, oz: {metric:'g',factor:28}, lb: {metric:'g',factor:454}, 'fl oz': {metric:'ml',factor:30} };
+    let currentUnit = 'us';
+    window.toggleUnits = function(system) {
+      currentUnit = system;
+      document.getElementById('unit-us').style.background = system === 'us' ? '#B85C38' : 'white';
+      document.getElementById('unit-us').style.color = system === 'us' ? 'white' : '#666';
+      document.getElementById('unit-us').style.border = system === 'us' ? 'none' : '1px solid #ddd';
+      document.getElementById('unit-metric').style.background = system === 'metric' ? '#B85C38' : 'white';
+      document.getElementById('unit-metric').style.color = system === 'metric' ? 'white' : '#666';
+      document.getElementById('unit-metric').style.border = system === 'metric' ? 'none' : '1px solid #ddd';
+      document.querySelectorAll('.ingredient-amount').forEach(el => {
+        const base = parseFloat(el.dataset.baseAmount); if (isNaN(base)) return;
+        const origUnit = el.dataset.unit || '';
+        const conv = conversions[origUnit.toLowerCase()];
+        if (conv && system === 'metric') {
+          const val = Math.round(base * conv.factor);
+          el.textContent = val + ' ' + conv.metric;
+        } else {
+          el.textContent = base + ' ' + origUnit;
+        }
       });
-      if (clickedBtn) {
-        clickedBtn.style.background = '#B85C38';
-        clickedBtn.style.color = 'white';
-        clickedBtn.style.border = 'none';
-      }
     };
 
     // Cook Mode
-    let wakeLock = null;
-    let cookModeActive = false;
-    const cookBtn = document.getElementById('cook-mode-btn');
-
-    if (cookBtn) {
-      cookBtn.addEventListener('click', async () => {
-        cookModeActive = !cookModeActive;
-        if (cookModeActive) {
-          try {
-            if ('wakeLock' in navigator) {
-              wakeLock = await navigator.wakeLock.request('screen');
-              wakeLock.addEventListener('release', () => {
-                cookModeActive = false;
-                cookBtn.style.background = 'white';
-                cookBtn.style.color = '#333';
-                cookBtn.textContent = '🍳 Cook Mode';
-              });
-            }
-          } catch (e) {}
-          cookBtn.style.background = '#B85C38';
-          cookBtn.style.color = 'white';
-          cookBtn.textContent = '🍳 Cook Mode ON';
-        } else {
-          if (wakeLock) { await wakeLock.release(); wakeLock = null; }
-          cookBtn.style.background = 'white';
-          cookBtn.style.color = '#333';
-          cookBtn.textContent = '🍳 Cook Mode';
-        }
-      });
-    }
+    let wl = null, cm = false;
+    const cb = document.getElementById('cook-mode-btn');
+    if (cb) cb.addEventListener('click', async () => {
+      cm = !cm;
+      if (cm) {
+        try { if ('wakeLock' in navigator) { wl = await navigator.wakeLock.request('screen'); wl.addEventListener('release', () => { cm=false; cb.style.background='white'; cb.style.color='#333'; cb.textContent='Cook Mode'; }); } } catch(e){}
+        cb.style.background='#B85C38'; cb.style.color='white'; cb.textContent='Cook Mode ON';
+      } else {
+        if (wl) { await wl.release(); wl=null; }
+        cb.style.background='white'; cb.style.color='#333'; cb.textContent='Cook Mode';
+      }
+    });
 
     // Reviews
     let selectedRating = 0;
-
-    window.setRating = function(star) {
-      selectedRating = star;
-      document.querySelectorAll('.star-btn svg').forEach((svg, i) => {
-        svg.setAttribute('fill', i < star ? '#F59E0B' : 'none');
-      });
-    };
-
+    window.setRating = function(s) { selectedRating = s; document.querySelectorAll('.star-btn svg').forEach((svg,i) => svg.setAttribute('fill', i<s?'#F59E0B':'none')); };
     window.submitReview = async function() {
       const name = document.getElementById('review-name').value.trim();
       const comment = document.getElementById('review-comment').value.trim();
-      const msg = document.getElementById('review-message');
-
-      if (!name) { msg.style.display = 'block'; msg.style.color = '#C62828'; msg.textContent = 'Please enter your name.'; return; }
-      if (!selectedRating) { msg.style.display = 'block'; msg.style.color = '#C62828'; msg.textContent = 'Please select a rating.'; return; }
-
-      const btn = document.getElementById('submit-review-btn');
-      btn.disabled = true;
-      btn.textContent = 'Submitting...';
-
+      const msg = document.getElementById('review-msg');
+      if (!name) { msg.style.display='block'; msg.style.color='#C62828'; msg.textContent='Please enter your name.'; return; }
+      if (!selectedRating) { msg.style.display='block'; msg.style.color='#C62828'; msg.textContent='Please select a rating.'; return; }
       try {
-        const res = await fetch(supabaseUrl + '/rest/v1/reviews', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': anonKey,
-            'Authorization': 'Bearer ' + anonKey,
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({
-            recipe_id: recipeId,
-            author_name: name,
-            rating: selectedRating,
-            comment: comment || null
-          })
-        });
+        const r = await fetch(supabaseUrl+'/rest/v1/reviews', { method:'POST', headers:{'Content-Type':'application/json','apikey':anonKey,'Authorization':'Bearer '+anonKey,'Prefer':'return=minimal'}, body:JSON.stringify({recipe_id:recipeId,author_name:name,rating:selectedRating,comment:comment||null}) });
+        if (r.ok) { msg.style.display='block'; msg.style.color='#2E7D32'; msg.textContent='Thank you!'; setTimeout(()=>location.reload(),1500); }
+      } catch(e) { msg.style.display='block'; msg.style.color='#C62828'; msg.textContent='Error. Try again.'; }
+    };
 
-        if (res.ok) {
-          msg.style.display = 'block';
-          msg.style.color = '#2E7D32';
-          msg.textContent = 'Thank you for your review!';
-          document.getElementById('review-name').value = '';
-          document.getElementById('review-comment').value = '';
-          selectedRating = 0;
-          document.querySelectorAll('.star-btn svg').forEach(svg => svg.setAttribute('fill', 'none'));
-          setTimeout(() => location.reload(), 1500);
-        } else {
-          throw new Error('Failed');
-        }
-      } catch (e) {
-        msg.style.display = 'block';
-        msg.style.color = '#C62828';
-        msg.textContent = 'Something went wrong. Please try again.';
-      }
-      btn.disabled = false;
-      btn.textContent = 'Submit Review';
+    // Email subscribe
+    window.subscribeEmail = async function() {
+      const email = document.getElementById('email-input').value.trim();
+      const msg = document.getElementById('email-msg');
+      if (!email || !email.includes('@')) { msg.style.display='block'; msg.style.color='#C62828'; msg.textContent='Please enter a valid email.'; return; }
+      try {
+        await fetch(supabaseUrl+'/rest/v1/newsletter_subscribers', { method:'POST', headers:{'Content-Type':'application/json','apikey':anonKey,'Authorization':'Bearer '+anonKey,'Prefer':'return=minimal'}, body:JSON.stringify({email,source:'inline',recipe_slug:recipeSlug}) });
+        msg.style.display='block'; msg.style.color='#2E7D32'; msg.textContent='Done! Check your inbox.';
+        document.getElementById('email-input').value='';
+      } catch(e) { msg.style.display='block'; msg.style.color='#C62828'; msg.textContent='Already subscribed or error.'; }
     };
   </script>
 </BaseLayout>

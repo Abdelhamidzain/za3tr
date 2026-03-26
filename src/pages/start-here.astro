@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { supabase } from '../lib/supabase';
+
+let beginnerRecipes: any[] = [];
+try {
+  const { data } = await supabase.from('recipes').select('slug, title_en, title_jp, hero_image_url, category, difficulty, total_time, avg_rating, review_count').eq('status', 'published').eq('difficulty', 'beginner').order('published_at', { ascending: false }).limit(6);
+  beginnerRecipes = data || [];
+} catch (e) {}
+
+let allRecipes: any[] = [];
+try {
+  const { data } = await supabase.from('recipes').select('slug, title_en, title_jp, hero_image_url, category, difficulty, total_time, avg_rating, review_count').eq('status', 'published').order('published_at', { ascending: false }).limit(8);
+  allRecipes = data || [];
+} catch (e) {}
+
+const STORAGE = 'https://doswprgdalotithjdjkc.supabase.co/storage/v1/object/public/images';
+---
+
+<BaseLayout title="Start Here - Japanese Cooking for Beginners" description="New to Japanese cooking? Start here. Learn the essential ingredients, techniques, and beginner-friendly recipes to build your confidence in the kitchen.">
+  <article class="py-10 md:py-16">
+    <div class="container">
+      <div class="content-width">
+
+        <!-- Hero -->
+        <div class="text-center mb-12">
+          <p class="text-sm text-[var(--color-clay)] font-medium tracking-widest uppercase mb-2">Welcome to Za3tr</p>
+          <h1 class="text-3xl md:text-5xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] leading-tight mb-4">New to Japanese Cooking?<br/>Start Here.</h1>
+          <p class="text-lg text-[var(--color-text-muted)] max-w-2xl mx-auto">I'm Akemi, and I'm here to guide you through the world of Japanese home cooking — step by step, ingredient by ingredient. No fancy equipment required.</p>
+        </div>
+
+        <!-- Step 1: Pantry -->
+        <div class="mb-16">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-[var(--color-terracotta)] text-white flex items-center justify-center font-bold">1</div>
+            <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">Stock Your Japanese Pantry</h2>
+          </div>
+          <p class="text-[var(--color-text-muted)] mb-6 ml-13">You only need 7 ingredients to make 80% of Japanese home recipes. Here are the essentials:</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 ml-13">
+            {[
+              { name: 'Soy Sauce (醤油)', desc: 'The backbone of Japanese flavor' },
+              { name: 'Mirin (みりん)', desc: 'Sweet rice wine for glazes' },
+              { name: 'Sake (酒)', desc: 'Cooking wine that adds depth' },
+              { name: 'Rice Vinegar (米酢)', desc: 'Mild acidity for balance' },
+              { name: 'Dashi (出汁)', desc: 'The umami base of everything' },
+              { name: 'Miso (味噌)', desc: 'Fermented soybean paste' },
+              { name: 'Japanese Rice (米)', desc: 'Short-grain, sticky perfection' },
+              { name: 'Sesame Oil (ごま油)', desc: 'Nutty finishing touch' },
+            ].map(item => (
+              <div class="p-4 bg-[var(--color-sand)]/40 rounded-xl border border-[var(--color-border-light)]">
+                <p class="text-sm font-semibold text-[var(--color-ink)]">{item.name}</p>
+                <p class="text-xs text-[var(--color-text-muted)] mt-1">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <a href="/ingredients" class="inline-flex items-center gap-2 mt-4 ml-13 text-sm text-[var(--color-terracotta)] font-medium hover:underline">
+            Browse all ingredients →
+          </a>
+        </div>
+
+        <!-- Step 2: First Recipes -->
+        <div class="mb-16">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-[var(--color-terracotta)] text-white flex items-center justify-center font-bold">2</div>
+            <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">Cook Your First Japanese Meal</h2>
+          </div>
+          <p class="text-[var(--color-text-muted)] mb-6 ml-13">Start with these beginner-friendly recipes. Each one teaches a fundamental technique:</p>
+          {allRecipes.length > 0 ? (
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ml-13">
+              {allRecipes.slice(0, 6).map(recipe => (
+                <a href={`/recipes/${recipe.slug}`} class="block bg-white rounded-xl overflow-hidden border border-[var(--color-border-light)] hover:shadow-md transition-shadow">
+                  {recipe.hero_image_url && <img src={recipe.hero_image_url} alt={recipe.title_en} class="w-full aspect-[4/3] object-cover" loading="lazy" />}
+                  <div class="p-4">
+                    <p class="font-semibold text-[var(--color-ink)]">{recipe.title_en}</p>
+                    {recipe.title_jp && <p class="text-xs text-[var(--color-text-muted)]">{recipe.title_jp}</p>}
+                    <div class="flex items-center gap-2 mt-2">
+                      {recipe.difficulty && <span class="text-xs px-2 py-0.5 rounded-full" style={recipe.difficulty === 'beginner' ? 'background:#E8F5E9;color:#2E7D32' : recipe.difficulty === 'intermediate' ? 'background:#FFF3E0;color:#E65100' : 'background:#FFEBEE;color:#C62828'}>{recipe.difficulty}</span>}
+                      {recipe.total_time && <span class="text-xs text-[var(--color-text-light)]">{recipe.total_time} min</span>}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p class="text-[var(--color-text-muted)] ml-13">Recipes coming soon — check back!</p>
+          )}
+          <a href="/recipes" class="inline-flex items-center gap-2 mt-4 ml-13 text-sm text-[var(--color-terracotta)] font-medium hover:underline">
+            Browse all recipes →
+          </a>
+        </div>
+
+        <!-- Step 3: Learn the Philosophy -->
+        <div class="mb-16">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-[var(--color-terracotta)] text-white flex items-center justify-center font-bold">3</div>
+            <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">Understand Ichiju Sansai</h2>
+          </div>
+          <div class="ml-13 p-6 bg-[var(--color-sand)]/30 rounded-2xl border border-[var(--color-border-light)]">
+            <p class="text-lg font-bold text-[var(--color-ink)] mb-2">一汁三菜 — One Soup, Three Sides</p>
+            <p class="text-[var(--color-text-muted)] leading-relaxed mb-4">This is the heart of Japanese meal planning. A traditional Japanese home meal consists of steamed rice, a bowl of soup (usually miso), and three side dishes — one grilled, one simmered, and one raw or pickled. This balanced approach ensures variety in flavor, texture, and nutrition.</p>
+            <p class="text-sm text-[var(--color-text-muted)]">You don't need to master all five elements at once. Start with rice + miso soup + one main dish. That's a complete meal.</p>
+          </div>
+        </div>
+
+        <!-- Step 4: Techniques -->
+        <div class="mb-16">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-[var(--color-terracotta)] text-white flex items-center justify-center font-bold">4</div>
+            <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)]">Master These Core Techniques</h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 ml-13">
+            {[
+              { name: 'Making Dashi', desc: 'The foundation of Japanese cooking. Once you can make dashi, everything else follows.' },
+              { name: 'Cooking Japanese Rice', desc: 'The rice cooker method, the stovetop method, and the secrets to perfect sticky rice.' },
+              { name: 'The Art of Stir-Frying', desc: 'High heat, quick moves, and the wok hei that makes fried rice magical.' },
+            ].map(tech => (
+              <div class="p-5 bg-white rounded-xl border border-[var(--color-border-light)]">
+                <p class="font-semibold text-[var(--color-ink)] mb-1">{tech.name}</p>
+                <p class="text-sm text-[var(--color-text-muted)]">{tech.desc}</p>
+              </div>
+            ))}
+          </div>
+          <a href="/techniques" class="inline-flex items-center gap-2 mt-4 ml-13 text-sm text-[var(--color-terracotta)] font-medium hover:underline">
+            Browse all techniques →
+          </a>
+        </div>
+
+        <!-- CTA -->
+        <div class="text-center p-8 bg-[var(--color-sand)]/30 rounded-2xl border border-[var(--color-border-light)]">
+          <h2 class="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-ink)] mb-3">Ready to Cook?</h2>
+          <p class="text-[var(--color-text-muted)] mb-6">Pick a recipe, gather your ingredients, and let's get started. I'll guide you through every step.</p>
+          <a href="/recipes" class="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-terracotta)] text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">Browse All Recipes →</a>
+        </div>
+
+      </div>
+    </div>
+  </article>
+</BaseLayout>
