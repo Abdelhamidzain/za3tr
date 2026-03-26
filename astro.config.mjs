@@ -9,6 +9,9 @@ export default defineConfig({
   output: 'server',
   adapter: cloudflare(),
   integrations: [sitemap(), react()],
+  build: {
+    inlineStylesheets: 'always',
+  },
   vite: {
     plugins: [tailwindcss()],
     ssr: {
