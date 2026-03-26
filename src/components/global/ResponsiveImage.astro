@@ -26,7 +26,7 @@ function getTransformUrl(url: string, width: number, q: number): string {
   if (!url || !url.includes('supabase.co/storage')) return url;
   // /storage/v1/object/public/ → /storage/v1/render/image/public/
   const renderUrl = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
-  return `${renderUrl}?width=${width}&quality=${q}&format=webp`;
+  return `${renderUrl}?width=${width}&quality=${q}`;
 }
 
 const srcset = widths

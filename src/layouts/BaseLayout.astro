@@ -62,7 +62,7 @@ const canonical = canonicalUrl || Astro.url.href;
   
   <!-- Preload hero image if provided -->
   {ogImage && ogImage.includes('supabase') && (
-    <link rel="preload" as="image" href={ogImage.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=800&quality=80&format=webp'} />
+    <link rel="preload" as="image" href={ogImage.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + '?width=800&quality=80'} />
   )}
   
   <!-- Favicon -->
